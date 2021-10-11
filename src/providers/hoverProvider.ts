@@ -14,6 +14,7 @@ import * as util from '../util';
 export default class HoverProvider implements vsHoverProvider {
     provideHover(doc: TextDocument, pos: Position): ProviderResult<Hover> {
         let config = workspace.getConfiguration('phpcf');
+
         let reg = new RegExp(config.viewRegex);
         let linkRange = doc.getWordRangeAtPosition(pos, reg);
 
@@ -26,7 +27,7 @@ export default class HoverProvider implements vsHoverProvider {
             let text: string = "";
 
             for (let i in filePaths) {
-                text += config.viewFolderTip ? `\`${filePaths[i].name}\`` : '';
+                // text += config.viewFolderTip ? `\`${filePaths[i].name}\`` : '';
                 text += ` [${workspaceFolder.name + filePaths[i].showPath}](${filePaths[i].fileUri})  \r`;
             }
 

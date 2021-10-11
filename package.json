@@ -23,11 +23,6 @@
                     "default": true,
                     "description": "Use 'Ctrl' or 'Alt' + click"
                 },
-                "phpcf.viewFolderTip": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Display path name"
-                },
                 "phpcf.viewMaxLinesCount": {
                     "type": "integer",
                     "default": 666,
@@ -38,25 +33,11 @@
                     "default": "(?<=view\\(|@include\\(|@extends\\(|@component\\(|Inertia::render\\()(['\"])[^'\"]*\\1",
                     "description": "Custom regex for matching strings"
                 },
-                "phpcf.viewFolders": {
-                    "type": "object",
-                    "default": {
-                        "default": "**/views",
-                        "js": "/resources/js/Pages",
-                        "vendor": "/resources/views/vendor"
-                    },
-                    "items": {
-                        "type": "string"
-                    },
-                    "minItems": 1,
-                    "uniqueItems": true,
-                    "description": "Multiple folders"
-                },
                 "phpcf.viewExtensions": {
                     "type": "array",
                     "default": [
                         ".blade.php",
-                        ".vue"
+                        ".php"
                     ],
                     "items": {
                         "type": "string"
@@ -69,6 +50,12 @@
         }
     },
     "main": "./out/src/extension",
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
     "devDependencies": {
         "@types/glob": "^7.1.4",
         "@types/mocha": "^9.0.0",
