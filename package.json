@@ -1,0 +1,81 @@
+{
+    "name": "php-cf",
+    "displayName": "PHP Cresenity Framework - VSCode",
+    "description": "Tools for developing PHP CF",
+    "version": "1.0.0",
+    "publisher": "cresenity",
+    "license": "MIT",
+    "repository": "https://github.com/cresenity/cf-php-vscode-extension",
+    "engines": {
+        "vscode": "^1.61.0"
+    },
+    "activationEvents": [
+        "onLanguage:php",
+        "onLanguage:blade"
+    ],
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Laravel goto view configuration",
+            "properties": {
+                "phpcf.viewQuickJump": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use 'Ctrl' or 'Alt' + click"
+                },
+                "phpcf.viewFolderTip": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Display path name"
+                },
+                "phpcf.viewMaxLinesCount": {
+                    "type": "integer",
+                    "default": 666,
+                    "description": "Maximum number of scanning rows"
+                },
+                "phpcf.viewRegex": {
+                    "type": "string",
+                    "default": "(?<=view\\(|@include\\(|@extends\\(|@component\\(|Inertia::render\\()(['\"])[^'\"]*\\1",
+                    "description": "Custom regex for matching strings"
+                },
+                "phpcf.viewFolders": {
+                    "type": "object",
+                    "default": {
+                        "default": "**/views",
+                        "js": "/resources/js/Pages",
+                        "vendor": "/resources/views/vendor"
+                    },
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "description": "Multiple folders"
+                },
+                "phpcf.viewExtensions": {
+                    "type": "array",
+                    "default": [
+                        ".blade.php",
+                        ".vue"
+                    ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "description": "Multiple extensions"
+                }
+            }
+        }
+    },
+    "main": "./out/src/extension",
+    "devDependencies": {
+        "@types/glob": "^7.1.4",
+        "@types/mocha": "^9.0.0",
+        "@types/node": "^16.10.3",
+        "@types/vscode": "^1.61.0",
+        "eslint": "^8.0.0",
+        "mocha": "^9.1.2",
+        "typescript": "^4.4.3"
+    }
+}
