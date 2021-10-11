@@ -16,9 +16,9 @@ export default class LinkProvider implements vsDocumentLinkProvider {
         let documentLinks = [];
         let config = workspace.getConfiguration('phpcf');
 
-        if (config.quickJump) {
-            let reg = new RegExp(config.regex, 'g');
-            let linesCount = doc.lineCount <= config.maxLinesCount ? doc.lineCount : config.maxLinesCount
+        if (config.viewQuickJump) {
+            let reg = new RegExp(config.viewRegex, 'g');
+            let linesCount = doc.lineCount <= config.viewMaxLinesCount ? doc.lineCount : config.viewMaxLinesCount
             let index = 0;
             while (index < linesCount) {
                 let line = doc.lineAt(index);

@@ -11,7 +11,7 @@ export function getFilePath(text: string, document: TextDocument) {
 
 export function getFilePaths(text: string, document: TextDocument) {
     let workspaceFolder = workspace.getWorkspaceFolder(document.uri).uri.fsPath;
-    let config = workspace.getConfiguration('laravel_goto_view');
+    let config = workspace.getConfiguration('phpcf');
     let paths = scanViewPaths(workspaceFolder, config);
     let file = text.replace(/\"|\'/g, '').replace(/\./g, '/').split('::');
     let result = [];
@@ -25,7 +25,7 @@ export function getFilePaths(text: string, document: TextDocument) {
                 showPath = paths[item] + `/${file[1]}`;
             }
         }
-        for (let extension of config.extensions) {
+        for (let extension of config.viewExtensions) {
             let filePath = workspaceFolder + showPath + extension;
 
             if (fs.existsSync(filePath)) {
@@ -42,7 +42,7 @@ export function getFilePaths(text: string, document: TextDocument) {
 }
 
 function scanViewPaths(workspaceFolder, config) {
-    let folders = Object.assign({}, config.folders);
+    let folders = Object.assign({}, config.viewFolders);
 
     // Modules
     let modulePath = path.join(workspaceFolder, 'Modules');

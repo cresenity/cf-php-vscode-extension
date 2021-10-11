@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "PHP Cresenity Framework - VSCode",
     "description": "Tools for developing PHP CF",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": "https://github.com/cresenity/cf-php-vscode-extension",
