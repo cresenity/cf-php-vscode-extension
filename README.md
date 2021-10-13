@@ -3,9 +3,6 @@ VSCode extension for PHP Cresenity Framework
 
 # Settings
 
-## viewRegex
-Custom regex for matching strings.
-
 ## viewMaxLinesCount
 Maximum number of scanning rows.
 

@@ -11,11 +11,12 @@ import {
 } from "vscode";
 import * as util from '../util';
 
+import { viewRegex } from "../constant";
+
 export default class HoverProvider implements vsHoverProvider {
     provideHover(doc: TextDocument, pos: Position): ProviderResult<Hover> {
-        let config = workspace.getConfiguration('phpcf');
 
-        let reg = new RegExp(config.viewRegex);
+        let reg = new RegExp(viewRegex);
         let linkRange = doc.getWordRangeAtPosition(pos, reg);
 
 

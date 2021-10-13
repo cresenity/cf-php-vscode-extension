@@ -29,12 +29,7 @@
                     "default": 666,
                     "description": "Maximum number of scanning rows"
                 },
-                "phpcf.viewRegex": {
-                    "type": "string",
-                    "default": "(?<=view\\(|@include\\(|@extends\\(|@component\\(|Inertia::render\\()(['\"])[^'\"]*\\1",
-                    "description": "Custom regex for matching strings"
-                },
-                "phpcf.viewExtensions": {
+               "phpcf.viewExtensions": {
                     "type": "array",
                     "default": [
                         ".blade.php",
