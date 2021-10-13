@@ -9,7 +9,7 @@ Custom regex for matching strings.
 ## viewMaxLinesCount
 Maximum number of scanning rows.
 
-Default: 666 😂
+Default: 666
 
 
 ## viewExtensions
