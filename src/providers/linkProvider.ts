@@ -11,14 +11,14 @@ import {
 } from "vscode"
 import * as util from '../util';
 
-import { viewRegex } from "../constant";
+import { VIEW_REGEX } from "../constant";
 export default class LinkProvider implements vsDocumentLinkProvider {
     public provideDocumentLinks(doc: TextDocument): ProviderResult<DocumentLink[]> {
         let documentLinks = [];
         let config = workspace.getConfiguration('phpcf');
 
         if (config.viewQuickJump) {
-            let reg = new RegExp(viewRegex, 'g');
+            let reg = new RegExp(VIEW_REGEX, 'g');
             let linesCount = doc.lineCount <= config.viewMaxLinesCount ? doc.lineCount : config.viewMaxLinesCount
             let index = 0;
             while (index < linesCount) {

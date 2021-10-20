@@ -11,12 +11,12 @@ import {
 } from "vscode";
 import * as util from '../util';
 
-import { viewRegex } from "../constant";
+import { VIEW_REGEX } from "../constant";
 
 export default class HoverProvider implements vsHoverProvider {
     provideHover(doc: TextDocument, pos: Position): ProviderResult<Hover> {
 
-        let reg = new RegExp(viewRegex);
+        let reg = new RegExp(VIEW_REGEX);
         let linkRange = doc.getWordRangeAtPosition(pos, reg);
 
 
