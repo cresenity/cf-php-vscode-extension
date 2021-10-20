@@ -3,6 +3,12 @@ import LinkProvider from './providers/linkProvider';
 import HoverProvider from './providers/hoverProvider';
 import * as path from "path";
 import * as fs from "fs";
+import initCommands from "./initCommands";
+import { checkNewAnnouncement } from './announcement';
+import app from './app';
+import { reportError } from './helper';
+import { showInformationMessage } from './host';
+import logger from './logger';
 export function activate(context: vscode.ExtensionContext) {
 
     //check is cf project
@@ -19,18 +25,27 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     if(isCF) {
-        vscode.window.showInformationMessage('PHP CF Activated');
+
+        //register command
+        try {
+            initCommands(context);
+        } catch (error) {
+            reportError(error, 'initCommands');
+        }
+
+        checkNewAnnouncement(context.globalState);
+
+        app.statusBar.show();
+
+        showInformationMessage('PHP CF Activated');
+        logger.info('PHP CF Activated');
         let hover = vscode.languages.registerHoverProvider(['php', 'blade'], new HoverProvider());
         let link = vscode.languages.registerDocumentLinkProvider(['php', 'blade'], new LinkProvider());
-
-        let disposable = vscode.commands.registerCommand('phpcf.showTodo', () =>{
-            vscode.window.showInformationMessage('Todo from phpcf');
-        });
 
         context.subscriptions.push(hover, link);
     }
 }
 
 export function deactivate() {
-    //
+
 }
