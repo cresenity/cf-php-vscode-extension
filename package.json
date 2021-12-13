@@ -11,8 +11,7 @@
     },
     "icon": "images/icon.png",
     "activationEvents": [
-        "onLanguage:php",
-        "onLanguage:blade"
+        "workspaceContains:cf"
     ],
     "contributes": {
         "configuration": {
