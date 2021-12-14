@@ -9,7 +9,7 @@ import app from './app';
 import { reportError } from './helper';
 import { showErrorMessage, showInformationMessage } from './host';
 import logger from './logger';
-import * as cp from "child_process";
+import onDocumentSaved from './event/onDocumentSaved';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -35,34 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
             reportError(error, 'initCommands');
         }
 
-        vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) => {
-            let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri).uri.fsPath;
-            let relativePath = path.relative(workspaceFolder, document.uri.fsPath);
-            let relativePathExploded = relativePath.split(path.sep);
+        vscode.workspace.onDidSaveTextDocument(onDocumentSaved);
 
-            if (relativePathExploded.length >= 4) {
-                let isValid = relativePathExploded[0] == 'application' && relativePathExploded[3] == 'js';
-                logger.info(`isValid ${isValid}`);
-                if (isValid) {
-                    const appPathRgx = new RegExp('(.*\/application\/(.*?)\/)');
-                    const matches = appPathRgx.exec(document.uri.fsPath);
-
-                    let appPath = matches[0];
-                    let appCode = matches[2];
-
-                    cp.exec(`cd ${appPath} && npm run dev`, (err, stdout, stderr) => {
-                        logger.info('stdout: ' + stdout);
-                        logger.info('stderr: ' + stderr);
-                        showInformationMessage(`Build completed on ${appCode} project`);
-                        if (err) {
-                            logger.error('error: ' + err);
-                            showErrorMessage(`${appCode} : ${err}`);
-                        }
-                    });
-                }
-            }
-
-        });
         checkNewAnnouncement(context.globalState);
 
         app.statusBar.show();
