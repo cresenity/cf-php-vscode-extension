@@ -7,8 +7,10 @@ import initCommands from "./initCommands";
 import { checkNewAnnouncement } from './announcement';
 import app from './app';
 import { reportError } from './helper';
-import { showInformationMessage } from './host';
+import { showErrorMessage, showInformationMessage } from './host';
 import logger from './logger';
+import * as cp from "child_process";
+
 export function activate(context: vscode.ExtensionContext) {
 
     //check is cf project
@@ -34,18 +36,30 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) => {
-            // logger.info(JSON.stringify(document.uri.fsPath));
             let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri).uri.fsPath;
             let relativePath = path.relative(workspaceFolder, document.uri.fsPath);
             let relativePathExploded = relativePath.split(path.sep);
 
-            logger.info(relativePath);
-            logger.info(JSON.stringify(relativePathExploded));
-
-            if(relativePathExploded.length >= 4){
+            if (relativePathExploded.length >= 4) {
                 let isValid = relativePathExploded[0] == 'application' && relativePathExploded[3] == 'js';
                 logger.info(`isValid ${isValid}`);
-                logger.info('TODO:build');
+                if (isValid) {
+                    const appPathRgx = new RegExp('(.*\/application\/(.*?)\/)');
+                    const matches = appPathRgx.exec(document.uri.fsPath);
+
+                    let appPath = matches[0];
+                    let appCode = matches[2];
+
+                    cp.exec(`cd ${appPath} && npm run dev`, (err, stdout, stderr) => {
+                        logger.info('stdout: ' + stdout);
+                        logger.info('stderr: ' + stderr);
+                        showInformationMessage(`Build completed on ${appCode} project`);
+                        if (err) {
+                            logger.error('error: ' + err);
+                            showErrorMessage(`${appCode} : ${err}`);
+                        }
+                    });
+                }
             }
 
         });
