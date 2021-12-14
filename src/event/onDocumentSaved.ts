@@ -2,7 +2,18 @@ import * as vscode from 'vscode';
 import * as path from "path";
 import * as cp from "child_process";
 import logger from '../logger';
-import { showInformationMessage, showErrorMessage } from '../host';
+import { showInformationMessage, showErrorMessage, showWarningMessage } from '../host';
+
+const uploadFile = async (document: vscode.TextDocument) => {
+    var sftpExt = vscode.extensions.getExtension('liximomo.sftp');
+    if (sftpExt.isActive) {
+        logger.info(`uploading : ${document.uri.fsPath}`);
+        await vscode.commands.executeCommand('sftp.upload.file', document.uri);
+        logger.info(`uploaded : ${document.uri.fsPath}`);
+    } else {
+        showWarningMessage(`liximomo.sftp extension is required to automatic upload files`);
+    }
+}
 
 export default function (document: vscode.TextDocument) {
     let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri).uri.fsPath;
@@ -18,14 +29,20 @@ export default function (document: vscode.TextDocument) {
             let appPath = matches[0];
             let appCode = matches[2];
 
+            if (!appCode || !appPath) return;
+
+            logger.info(`${appCode} : building...`);
+            showInformationMessage(`${appCode} : building...`);
+
             cp.exec(`cd ${appPath} && npm run dev`, (err, stdout, stderr) => {
-                logger.info('stdout: ' + stdout);
-                logger.info('stderr: ' + stderr);
+                stdout && logger.info(stdout);
+                stderr && logger.info(stderr);
                 showInformationMessage(`Build completed on ${appCode} project`);
                 if (err) {
                     logger.error('error: ' + err);
                     showErrorMessage(`${appCode} : ${err}`);
                 }
+                uploadFile(document);
             });
         }
     }

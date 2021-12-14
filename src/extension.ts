@@ -7,7 +7,7 @@ import initCommands from "./initCommands";
 import { checkNewAnnouncement } from './announcement';
 import app from './app';
 import { reportError } from './helper';
-import { showErrorMessage, showInformationMessage } from './host';
+import { showInformationMessage } from './host';
 import logger from './logger';
 import onDocumentSaved from './event/onDocumentSaved';
 
