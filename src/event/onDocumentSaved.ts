@@ -15,7 +15,7 @@ const uploadFile = async (document: vscode.TextDocument) => {
     }
 }
 
-export default function (document: vscode.TextDocument) {
+export default async function (document: vscode.TextDocument) {
     let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri).uri.fsPath;
     let relativePath = path.relative(workspaceFolder, document.uri.fsPath);
     let relativePathExploded = relativePath.split(path.sep);
@@ -34,7 +34,38 @@ export default function (document: vscode.TextDocument) {
             logger.info(`${appCode} : building...`);
             showInformationMessage(`${appCode} : building...`);
 
-            cp.exec(`cd ${appPath} && npm run dev`, (err, stdout, stderr) => {
+            const rollupConfigUri = vscode.Uri.file(`${appPath}rollup.config.js`);
+            const rollupConfDoc = await vscode.workspace.openTextDocument(rollupConfigUri);
+            if (rollupConfDoc) {
+                logger.info('Rollup config found.');
+                let text = rollupConfDoc.getText();
+                const rgx = new RegExp(/export default(.*)/s);
+                const match = rgx.exec(text);
+                const isProduction = false;
+                const scss = (param:any) => {
+                    return param;
+                }
+
+                const terser = (param:any) => {
+                    return param;
+                }
+
+                const copy = (param:any) => {
+                    return param;
+                }
+
+                const config = match[1] && eval(match[1]);
+
+                console.log({ config });
+                if(config){
+                    console.log('JS', config[0].output.file);
+                    console.log('CSS', config[0].plugins[0].output);
+                }
+            }
+            console.log({ rollupConfigUri });
+            return;
+
+            cp.exec(`cd ${appPath}`, async (err, stdout, stderr) => {
                 stdout && logger.info(stdout);
                 stderr && logger.info(stderr);
                 showInformationMessage(`Build completed on ${appCode} project`);
