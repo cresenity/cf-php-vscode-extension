@@ -3,6 +3,7 @@ import * as path from "path";
 import * as cp from "child_process";
 import logger from '../logger';
 import { showInformationMessage, showErrorMessage, showWarningMessage } from '../host';
+import * as websocket from '../websocket';
 
 const uploadFile = async (uri: vscode.Uri) => {
     var sftpExt = vscode.extensions.getExtension('liximomo.sftp');
@@ -29,6 +30,8 @@ const uploadFileByPath = async (path: string) => {
 }
 
 export default async function (document: vscode.TextDocument) {
+    logger.info('file saved');
+
     let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri).uri.fsPath;
     let relativePath = path.relative(workspaceFolder, document.uri.fsPath);
     let relativePathExploded = relativePath.split(path.sep);
@@ -58,9 +61,9 @@ export default async function (document: vscode.TextDocument) {
                 const match = rgx.exec(text);
                 let targets = [];
                 try {
-                    if(match){
+                    if (match) {
                         targets = match[1] && eval(match[1]);
-                    }else{
+                    } else {
                         showInformationMessage('You can add rollup-plugin-copy and add targets copy on rollup.config.js to enable auto upload build files');
                     }
                 } catch (error) {
@@ -92,9 +95,10 @@ export default async function (document: vscode.TextDocument) {
                         showErrorMessage(`${appCode} : ${err}`);
                     }
 
-                    files.forEach(file => {
-                        uploadFileByPath(file);
+                    files.forEach(async file => {
+                        await uploadFileByPath(file);
                     });
+                    websocket.reload();
                 });
             } else {
                 showWarningMessage('rollup.config.js not found');
