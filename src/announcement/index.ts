@@ -5,7 +5,9 @@ const SETUP_STRING = 'liveServer.setup.version';
 
 export async function checkNewAnnouncement(memento: Memento) {
 
-    const packageJSON = extensions.getExtension('ritwickdey.LiveServer').packageJSON;
+    const liveServer = extensions.getExtension('ritwickdey.LiveServer');
+    if(!liveServer) return;
+    const packageJSON = liveServer.packageJSON;
     const announment = packageJSON.announcement;
 
     if (!announment && Object.keys(announment).length === 0) return;
