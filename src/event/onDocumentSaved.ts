@@ -58,7 +58,11 @@ export default async function (document: vscode.TextDocument) {
                 const match = rgx.exec(text);
                 let targets = [];
                 try {
-                    targets = match[1] && eval(match[1]);
+                    if(match){
+                        targets = match[1] && eval(match[1]);
+                    }else{
+                        showInformationMessage('You can add rollup-plugin-copy and add targets copy on rollup.config.js to enable auto upload build files');
+                    }
                 } catch (error) {
                     logger.error(error);
                 }
