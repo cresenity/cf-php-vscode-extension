@@ -43,8 +43,6 @@ export default async function (document: vscode.TextDocument) {
             let appCode = matches[2];
 
             if (!appCode || !appPath) return;
-
-            logger.info(`${appCode} : building...`);
             showInformationMessage(`${appCode} : building...`);
 
             const rollupConfigUri = vscode.Uri.file(`${appPath}rollup.config.js`);
@@ -56,53 +54,31 @@ export default async function (document: vscode.TextDocument) {
             if (rollupConfDoc) {
                 logger.info('Rollup config found');
                 let text = rollupConfDoc.getText();
-                const rgx = new RegExp(/export default(.*)/s);
+                const rgx = new RegExp(/copy\(.*targets: (\[*([^\[\]]*?)\])/s);
                 const match = rgx.exec(text);
-                const isProduction = false;
-                const scss = (param: any) => param;
-                const terser = (param: any) => param;
-                const copy = (param: any) => param;
-                const config: any[] = match[1] && eval(match[1]);
+                let targets = [];
+                try {
+                    targets = match[1] && eval(match[1]);
+                } catch (error) {
+                    logger.error(error);
+                }
                 let files = [];
 
-                if (config) {
-                    config.forEach(item => {
-                        const plugins: any[] = item.plugins;
-                        let jsPath: string = item?.output?.file;
-                        if (jsPath) {
-                            jsPath = jsPath?.replace(/.+?(?=default)/, '');
-                            jsPath = `${appPath}${jsPath}`;
-                            files.push(jsPath);
+                if (targets) {
+                    targets.forEach(target => {
+                        let src: string = target.src;
+                        if (src) {
+                            const dest = target.dest;
+                            src = src?.split(path.sep)?.pop();
+                            src = `${dest}/${src}`;
+                            src = src?.replace(/.+?(?=default)/, '');
+                            src = `${appPath}${src}`;
+                            files.push(src);
                         }
-                        plugins.forEach(plugin => {
-                            let output: string = plugin?.output;
-                            if (output) {
-                                output = output?.replace(/.+?(?=default)/, '');
-                                output = `${appPath}${output}`;
-                                files.push(output);
-                            }
-
-                            let targets: any[] = plugin?.targets;
-                            if (targets) {
-                                targets.forEach(target => {
-                                    let src: string = target.src;
-                                    if(src){
-                                        const dest = target.dest;
-                                        src = src?.split(path.sep)?.pop();
-                                        src = `${dest}/${src}`;
-                                        src = src?.replace(/.+?(?=default)/, '');
-                                        src = `${appPath}${src}`;
-                                        files.push(src);
-                                    }
-                                });
-                            }
-                        });
                     });
-
                 }
 
-                console.log({ files });
-
+                logger.info(`${appCode} : building...`);
                 cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
                     stdout && logger.info(stdout);
                     stderr && logger.info(stderr);
