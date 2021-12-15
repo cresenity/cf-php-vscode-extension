@@ -51,9 +51,7 @@ export default async function (document: vscode.TextDocument) {
             let rollupConfDoc = null;
             try {
                 rollupConfDoc = await vscode.workspace.openTextDocument(rollupConfigUri);
-            } catch (error) {
-                console.log(error);
-            }
+            } catch (error) {}
 
             if (rollupConfDoc) {
                 logger.info('Rollup config found.');
@@ -66,7 +64,6 @@ export default async function (document: vscode.TextDocument) {
                 const copy = (param: any) => param;
                 const config = match[1] && eval(match[1]);
 
-                console.log({ config });
                 let jsPath:string = null;
                 let cssPath:string = null;
                 if (config) {
@@ -79,9 +76,6 @@ export default async function (document: vscode.TextDocument) {
 
                 jsPath = `${appPath}${jsPath}`;
                 cssPath = `${appPath}${cssPath}`;
-
-                console.log({jsPath});
-                console.log({cssPath});
 
                 cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
                     stdout && logger.info(stdout);
@@ -103,8 +97,6 @@ export default async function (document: vscode.TextDocument) {
             } else {
                 showWarningMessage('rollup.config.js not found');
             }
-            console.log({ rollupConfigUri });
-
         }
     }
 }
