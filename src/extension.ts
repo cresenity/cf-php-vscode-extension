@@ -10,6 +10,7 @@ import { reportError } from './helper';
 import { showInformationMessage } from './host';
 import logger from './logger';
 import onDocumentSaved from './event/onDocumentSaved';
+import * as websocket from './websocket';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -36,6 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         vscode.workspace.onDidSaveTextDocument(onDocumentSaved);
+        websocket.start();
 
         checkNewAnnouncement(context.globalState);
 
