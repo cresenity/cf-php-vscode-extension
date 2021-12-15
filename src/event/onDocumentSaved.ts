@@ -15,15 +15,15 @@ const uploadFile = async (uri: vscode.Uri) => {
     }
 }
 
-const uploadFileByPath = async (path:string) => {
+const uploadFileByPath = async (path: string) => {
     const uri = vscode.Uri.file(path);
     let doc = null;
     try {
         doc = await vscode.workspace.openTextDocument(uri);
-    } catch (error) {}
-    if(doc){
+    } catch (error) { }
+    if (doc) {
         return await uploadFile(uri);
-    }else{
+    } else {
         return null;
     }
 }
@@ -51,10 +51,10 @@ export default async function (document: vscode.TextDocument) {
             let rollupConfDoc = null;
             try {
                 rollupConfDoc = await vscode.workspace.openTextDocument(rollupConfigUri);
-            } catch (error) {}
+            } catch (error) { }
 
             if (rollupConfDoc) {
-                logger.info('Rollup config found.');
+                logger.info('Rollup config found');
                 let text = rollupConfDoc.getText();
                 const rgx = new RegExp(/export default(.*)/s);
                 const match = rgx.exec(text);
@@ -62,20 +62,46 @@ export default async function (document: vscode.TextDocument) {
                 const scss = (param: any) => param;
                 const terser = (param: any) => param;
                 const copy = (param: any) => param;
-                const config = match[1] && eval(match[1]);
+                const config: any[] = match[1] && eval(match[1]);
+                let files = [];
 
-                let jsPath:string = null;
-                let cssPath:string = null;
                 if (config) {
-                    jsPath = config[0]?.output?.file;
-                    cssPath = config[0]?.plugins[0]?.output;
+                    config.forEach(item => {
+                        const plugins: any[] = item.plugins;
+                        let jsPath: string = item?.output?.file;
+                        if (jsPath) {
+                            jsPath = jsPath?.replace(/.+?(?=default)/, '');
+                            jsPath = `${appPath}${jsPath}`;
+                            files.push(jsPath);
+                        }
+                        plugins.forEach(plugin => {
+                            let output: string = plugin?.output;
+                            if (output) {
+                                output = output?.replace(/.+?(?=default)/, '');
+                                output = `${appPath}${output}`;
+                                files.push(output);
+                            }
+
+                            let targets: any[] = plugin?.targets;
+                            if (targets) {
+                                targets.forEach(target => {
+                                    let src: string = target.src;
+                                    if(src){
+                                        const dest = target.dest;
+                                        src = src?.split(path.sep)?.pop();
+                                        src = `${dest}/${src}`;
+                                        src = src?.replace(/.+?(?=default)/, '');
+                                        src = `${appPath}${src}`;
+                                        files.push(src);
+                                    }
+                                });
+                            }
+                        });
+                    });
+
                 }
 
-                jsPath = jsPath?.replace(/.+?(?=default)/, '');
-                cssPath = cssPath?.replace(/.+?(?=default)/, '');
-
-                jsPath = `${appPath}${jsPath}`;
-                cssPath = `${appPath}${cssPath}`;
+                console.log({ files });
 
                 cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
                     stdout && logger.info(stdout);
@@ -86,13 +112,9 @@ export default async function (document: vscode.TextDocument) {
                         showErrorMessage(`${appCode} : ${err}`);
                     }
 
-                    if(jsPath){
-                        uploadFileByPath(jsPath);
-                    }
-
-                    if(cssPath){
-                        uploadFileByPath(cssPath);
-                    }
+                    files.forEach(file => {
+                        uploadFileByPath(file);
+                    });
                 });
             } else {
                 showWarningMessage('rollup.config.js not found');
