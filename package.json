@@ -62,6 +62,7 @@
         "typescript": "^4.4.3"
     },
     "dependencies": {
+        "@types/websocket": "^1.0.4",
         "fs-extra": "^10.0.0",
         "ftp": "^0.3.10",
         "http-shutdown": "^1.2.2",
@@ -72,6 +73,7 @@
         "opn": "^5.4.0",
         "p-queue": "^7.1.0",
         "ssh-config": "^4.0.6",
-        "vsls": "^0.3.967"
+        "vsls": "^0.3.967",
+        "websocket": "^1.0.34"
     }
 }
