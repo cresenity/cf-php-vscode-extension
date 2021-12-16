@@ -36,73 +36,81 @@ export default async function (document: vscode.TextDocument) {
     let relativePath = path.relative(workspaceFolder, document.uri.fsPath);
     let relativePathExploded = relativePath.split(path.sep);
 
-    if (relativePathExploded.length >= 4) {
-        let isValid = relativePathExploded[0] == 'application' && relativePathExploded[3] == 'js';
-        if (isValid) {
-            const appPathRgx = new RegExp('(.*\/application\/(.*?)\/)');
-            const matches = appPathRgx.exec(document.uri.fsPath);
+    let isValid = false;
+    isValid = relativePathExploded.length >= 4;
 
-            let appPath = matches[0];
-            let appCode = matches[2];
-
-            if (!appCode || !appPath) return;
-            showInformationMessage(`${appCode} : building...`);
-
-            const rollupConfigUri = vscode.Uri.file(`${appPath}rollup.config.js`);
-            let rollupConfDoc = null;
-            try {
-                rollupConfDoc = await vscode.workspace.openTextDocument(rollupConfigUri);
-            } catch (error) { }
-
-            if (rollupConfDoc) {
-                logger.info('Rollup config found');
-                let text = rollupConfDoc.getText();
-                const rgx = new RegExp(/copy\(.*targets: (\[*([^\[\]]*?)\])/s);
-                const match = rgx.exec(text);
-                let targets = [];
-                try {
-                    if (match) {
-                        targets = match[1] && eval(match[1]);
-                    } else {
-                        showInformationMessage('You can add rollup-plugin-copy and add targets copy on rollup.config.js to enable auto upload build files');
-                    }
-                } catch (error) {
-                    logger.error(error);
-                }
-                let files = [];
-
-                if (targets) {
-                    targets.forEach(target => {
-                        let src: string = target.src;
-                        if (src) {
-                            const dest = target.dest;
-                            src = src?.split(path.sep)?.pop();
-                            src = `${dest}/${src}`;
-                            src = src?.replace(/.+?(?=default)/, '');
-                            src = `${appPath}${src}`;
-                            files.push(src);
-                        }
-                    });
-                }
-
-                logger.info(`${appCode} : building...`);
-                cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
-                    stdout && logger.info(stdout);
-                    stderr && logger.info(stderr);
-                    showInformationMessage(`Build completed on ${appCode} project`);
-                    if (err) {
-                        logger.error('error: ' + err);
-                        showErrorMessage(`${appCode} : ${err}`);
-                    }
-
-                    files.forEach(async file => {
-                        await uploadFileByPath(file);
-                    });
-                    websocket.reload();
-                });
-            } else {
-                showWarningMessage('rollup.config.js not found');
-            }
-        }
+    if (isValid) {
+        isValid = relativePathExploded[0] == 'application' && relativePathExploded[3] == 'js';
     }
+
+    if (isValid) {
+        const appPathRgx = new RegExp('(.*\/application\/(.*?)\/)');
+        const matches = appPathRgx.exec(document.uri.fsPath);
+
+        let appPath = matches[0];
+        let appCode = matches[2];
+
+        if (!appCode || !appPath) return;
+        showInformationMessage(`${appCode} : building...`);
+
+        const rollupConfigUri = vscode.Uri.file(`${appPath}rollup.config.js`);
+        let rollupConfDoc = null;
+        try {
+            rollupConfDoc = await vscode.workspace.openTextDocument(rollupConfigUri);
+        } catch (error) { }
+
+        if (rollupConfDoc) {
+            logger.info('Rollup config found');
+            let text = rollupConfDoc.getText();
+            const rgx = new RegExp(/copy\(.*targets: (\[*([^\[\]]*?)\])/s);
+            const match = rgx.exec(text);
+            let targets = [];
+            try {
+                if (match) {
+                    targets = match[1] && eval(match[1]);
+                } else {
+                    showInformationMessage('You can add rollup-plugin-copy and add targets copy on rollup.config.js to enable auto upload build files');
+                }
+            } catch (error) {
+                logger.error(error);
+            }
+            let files = [];
+
+            if (targets) {
+                targets.forEach(target => {
+                    let src: string = target.src;
+                    if (src) {
+                        const dest = target.dest;
+                        src = src?.split(path.sep)?.pop();
+                        src = `${dest}/${src}`;
+                        src = src?.replace(/.+?(?=default)/, '');
+                        src = `${appPath}${src}`;
+                        files.push(src);
+                    }
+                });
+            }
+
+            logger.info(`${appCode} : building...`);
+            cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
+                stdout && logger.info(stdout);
+                stderr && logger.info(stderr);
+                showInformationMessage(`Build completed on ${appCode} project`);
+                if (err) {
+                    logger.error('error: ' + err);
+                    showErrorMessage(`${appCode} : ${err}`);
+                }
+
+                files.forEach(async file => {
+                    await uploadFileByPath(file);
+                });
+                websocket.reload();
+            });
+        } else {
+            showWarningMessage('rollup.config.js not found');
+        }
+    } else {
+        await uploadFile(document.uri);
+        websocket.reload();
+    }
+
 }
