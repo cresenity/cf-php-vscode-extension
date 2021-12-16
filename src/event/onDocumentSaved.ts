@@ -4,6 +4,7 @@ import * as cp from "child_process";
 import logger from '../logger';
 import { showInformationMessage, showErrorMessage, showWarningMessage } from '../host';
 import * as websocket from '../websocket';
+import { getConfig, getConfigPath, check as configCheck } from '../config';
 
 const uploadFile = async (uri: vscode.Uri) => {
     var sftpExt = vscode.extensions.getExtension('liximomo.sftp');
@@ -30,8 +31,13 @@ const uploadFileByPath = async (path: string) => {
 }
 
 export default async function (document: vscode.TextDocument) {
-    logger.info('file saved');
+    if(document.uri.fsPath == getConfigPath()){
+        await configCheck();
+        logger.info('config saved');
+        return;
+    }
 
+    logger.info('file saved');
     let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri).uri.fsPath;
     let relativePath = path.relative(workspaceFolder, document.uri.fsPath);
     let relativePathExploded = relativePath.split(path.sep);
@@ -100,9 +106,11 @@ export default async function (document: vscode.TextDocument) {
                     showErrorMessage(`${appCode} : ${err}`);
                 }
 
-                await Promise.all(files.map(async (file) => {
-                    await uploadFileByPath(file);
-                }));
+                if (getConfig().uploadOnSave) {
+                    await Promise.all(files.map(async (file) => {
+                        await uploadFileByPath(file);
+                    }));
+                }
 
                 websocket.reload();
             });
@@ -110,7 +118,9 @@ export default async function (document: vscode.TextDocument) {
             showWarningMessage('rollup.config.js not found');
         }
     } else {
-        await uploadFile(document.uri);
+        if (getConfig().uploadOnSave) {
+            await uploadFile(document.uri);
+        }
         websocket.reload();
     }
 
