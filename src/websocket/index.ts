@@ -6,7 +6,6 @@ const PORT = 3717;
 const PROTOCOL = 'reload-protocol';
 let wsClient:websocket.client = null;
 let wsConnection:websocket.connection = null;
-const connections:websocket.connection[] = [];
 
 export const start = () => {
     var server = http.createServer(function (request, response) {
@@ -31,14 +30,12 @@ export const start = () => {
     wsServer.on('request', function(request) {
         var connection = request.accept(PROTOCOL, request.origin);
         console.log((new Date()) + ' Connection accepted.');
-        connections.push(connection);
+
         connection.on('message', function(message) {
             if (message.type === 'utf8') {
                 console.log('Received Message: ' + message.utf8Data);
                 const msg = message.utf8Data;
-                connections.forEach(element => {
-                    element.sendUTF(msg);
-                });
+                wsServer.broadcastUTF(msg);
             }
             else if (message.type === 'binary') {
                 console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
