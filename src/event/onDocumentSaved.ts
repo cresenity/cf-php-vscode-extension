@@ -31,7 +31,7 @@ const uploadFileByPath = async (path: string) => {
 }
 
 export default async function (document: vscode.TextDocument) {
-    if(document.uri.fsPath == getConfigPath()){
+    if (document.uri.fsPath == getConfigPath()) {
         await configCheck();
         logger.info('config saved');
         return;
@@ -97,6 +97,19 @@ export default async function (document: vscode.TextDocument) {
             }
 
             logger.info(`${appCode} : building...`);
+            const warcherPath = `**/*.{css,js}`;
+            const watcher = vscode.workspace.createFileSystemWatcher(warcherPath);
+
+            let fileToUpload: vscode.Uri[] = [];
+
+            watcher.onDidChange(uri => {
+                fileToUpload.push(uri);
+            });
+
+            watcher.onDidCreate(uri => {
+                fileToUpload.push(uri);
+            });
+
             cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
                 stdout && logger.info(stdout);
                 stderr && logger.info(stderr);
@@ -112,7 +125,12 @@ export default async function (document: vscode.TextDocument) {
                     }));
                 }
 
+                await sleep(1000);
+                await Promise.all(fileToUpload.map(async (file) => {
+                    await uploadFile(file);
+                }))
                 websocket.reload();
+                watcher.dispose();
             });
         } else {
             showWarningMessage('rollup.config.js not found');
@@ -124,4 +142,8 @@ export default async function (document: vscode.TextDocument) {
         websocket.reload();
     }
 
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
