@@ -12,50 +12,45 @@ let wsServer: websocket.server = null;
 
 export const start = () => {
     const port = getConfig()?.port ?? PORT;
-    if (!server) {
-        server = http.createServer(function (request, response) {
-            console.log((new Date()) + ' Received request for ' + request.url);
-            response.writeHead(404);
-            response.end();
+
+    server = http.createServer(function (request, response) {
+        console.log((new Date()) + ' Received request for ' + request.url);
+        response.writeHead(404);
+        response.end();
+    });
+    server.listen(port, function () {
+        console.log((new Date()) + ` Server is listening on port ${port}`);
+    });
+
+    wsServer = new websocket.server({
+        httpServer: server,
+        // You should not use autoAcceptConnections for production
+        // applications, as it defeats all standard cross-origin protection
+        // facilities built into the protocol and the browser.  You should
+        // *always* verify the connection's origin and decide whether or not
+        // to accept it.
+        autoAcceptConnections: false
+    });
+
+    wsServer.on('request', function (request) {
+        var connection = request.accept(PROTOCOL, request.origin);
+        console.log((new Date()) + ' Connection accepted.');
+
+        connection.on('message', function (message) {
+            if (message.type === 'utf8') {
+                console.log('Received Message: ' + message.utf8Data);
+                const msg = message.utf8Data;
+                wsServer.broadcastUTF(msg);
+            }
+            else if (message.type === 'binary') {
+                console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
+                connection.sendBytes(message.binaryData);
+            }
         });
-        server.listen(port, function () {
-            console.log((new Date()) + ` Server is listening on port ${port}`);
+        connection.on('close', function (reasonCode, description) {
+            console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
         });
-    }
-
-    if (!wsServer) {
-        wsServer = new websocket.server({
-            httpServer: server,
-            // You should not use autoAcceptConnections for production
-            // applications, as it defeats all standard cross-origin protection
-            // facilities built into the protocol and the browser.  You should
-            // *always* verify the connection's origin and decide whether or not
-            // to accept it.
-            autoAcceptConnections: false
-        });
-
-        wsServer.on('request', function (request) {
-            var connection = request.accept(PROTOCOL, request.origin);
-            console.log((new Date()) + ' Connection accepted.');
-
-            connection.on('message', function (message) {
-                if (message.type === 'utf8') {
-                    console.log('Received Message: ' + message.utf8Data);
-                    const msg = message.utf8Data;
-                    wsServer.broadcastUTF(msg);
-                }
-                else if (message.type === 'binary') {
-                    console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-                    connection.sendBytes(message.binaryData);
-                }
-            });
-            connection.on('close', function (reasonCode, description) {
-                console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-            });
-        });
-    }
-
-
+    });
 }
 
 export const getClient = (): websocket.client => {
@@ -84,7 +79,8 @@ export const getClient = (): websocket.client => {
 
         const isConnectionClosed = wsConnection?.state != 'open';
         if (isConnectionClosed) {
-            wsClient.connect(`ws://localhost:${PORT}/`, PROTOCOL);
+            const port = getConfig()?.port ?? PORT;
+            wsClient.connect(`ws://localhost:${port}/`, PROTOCOL);
         }
     }
 
@@ -103,4 +99,18 @@ export const reload = () => {
             connection.sendUTF('RELOAD');
         });
     }
+}
+
+export const disconnect = () => {
+    wsServer?.closeAllConnections();
+    server?.close();
+
+    server = null;
+    wsServer = null;
+    wsClient = null;
+}
+
+export const restart = () => {
+    disconnect();
+    start();
 }
