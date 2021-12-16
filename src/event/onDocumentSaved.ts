@@ -66,36 +66,6 @@ export default async function (document: vscode.TextDocument) {
         } catch (error) { }
 
         if (rollupConfDoc) {
-            logger.info('Rollup config found');
-            let text = rollupConfDoc.getText();
-            const rgx = new RegExp(/copy\(.*targets: (\[*([^\[\]]*?)\])/s);
-            const match = rgx.exec(text);
-            let targets = [];
-            try {
-                if (match) {
-                    targets = match[1] && eval(match[1]);
-                } else {
-                    showInformationMessage('You can add rollup-plugin-copy and add targets copy on rollup.config.js to enable auto upload build files');
-                }
-            } catch (error) {
-                logger.error(error);
-            }
-            let files = [];
-
-            if (targets) {
-                targets.forEach(target => {
-                    let src: string = target.src;
-                    if (src) {
-                        const dest = target.dest;
-                        src = src?.split(path.sep)?.pop();
-                        src = `${dest}/${src}`;
-                        src = src?.replace(/.+?(?=default)/, '');
-                        src = `${appPath}${src}`;
-                        files.push(src);
-                    }
-                });
-            }
-
             logger.info(`${appCode} : building...`);
             const warcherPath = `**/*.{css,js}`;
             const watcher = vscode.workspace.createFileSystemWatcher(warcherPath);
@@ -119,17 +89,17 @@ export default async function (document: vscode.TextDocument) {
                     showErrorMessage(`${appCode} : ${err}`);
                 }
 
-                if (getConfig().uploadOnSave) {
-                    await Promise.all(files.map(async (file) => {
-                        await uploadFileByPath(file);
-                    }));
-                }
 
-                await sleep(1000);
-                await Promise.all(fileToUpload.map(async (file) => {
-                    await uploadFile(file);
-                }))
-                websocket.reload();
+
+                if (getConfig().uploadOnSave) {
+                    await sleep(1000);
+                    await Promise.all(fileToUpload.map(async (file) => {
+                        await uploadFile(file);
+                    }))
+                }
+                if (getConfig().liveReload) {
+                    websocket.reload();
+                }
                 watcher.dispose();
             });
         } else {
