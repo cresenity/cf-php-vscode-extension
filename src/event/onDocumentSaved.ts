@@ -100,9 +100,10 @@ export default async function (document: vscode.TextDocument) {
                     showErrorMessage(`${appCode} : ${err}`);
                 }
 
-                files.forEach(async file => {
+                await Promise.all(files.map(async (file) => {
                     await uploadFileByPath(file);
-                });
+                }));
+
                 websocket.reload();
             });
         } else {
