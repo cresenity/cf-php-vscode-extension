@@ -7,11 +7,13 @@ import initCommands from "./initCommands";
 import { checkNewAnnouncement } from './announcement';
 import app from './app';
 import { reportError } from './helper';
-import { showErrorMessage, showInformationMessage } from './host';
+import { showInformationMessage } from './host';
 import logger from './logger';
 import onDocumentSaved from './event/onDocumentSaved';
+import * as websocket from './websocket';
+import * as config from './config';
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 
     //check is cf project
 
@@ -35,7 +37,11 @@ export function activate(context: vscode.ExtensionContext) {
             reportError(error, 'initCommands');
         }
 
+        await config.check();
         vscode.workspace.onDidSaveTextDocument(onDocumentSaved);
+        if (config.getConfig().liveReload) {
+            websocket.start();
+        }
 
         checkNewAnnouncement(context.globalState);
 
