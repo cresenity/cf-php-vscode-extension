@@ -31,9 +31,19 @@ export const check = async () => {
         } catch (e) { }
 
         if (config) {
+            const configBefore = cfConfig;
             cfConfig = JSON.parse(config.getText());
-            if (cfConfig.liveReload) {
+
+            if ((!configBefore.liveReload && cfConfig.liveReload)) {
                 websocket.start();
+            }
+
+            if (configBefore.port != cfConfig.port && cfConfig.liveReload) {
+                websocket.restart();
+            }
+
+            if (configBefore.liveReload && !cfConfig.liveReload) {
+                websocket.disconnect();
             }
         } else {
             console.log('create cf.json config');
