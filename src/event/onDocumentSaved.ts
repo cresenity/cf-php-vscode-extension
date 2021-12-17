@@ -53,7 +53,7 @@ export default async function (document: vscode.TextDocument) {
     }
 
     if (isValid) {
-        const appPathRgx = new RegExp('(.*\/application\/(.*?)\/)');
+        const appPathRgx = new RegExp(/(.*[\/|\\]application[\/|\\](.*?)[\/|\\])/gm);
         const matches = appPathRgx.exec(document.uri.fsPath);
 
         let appPath = matches[0];
