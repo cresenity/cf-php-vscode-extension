@@ -6,6 +6,9 @@ import { showInformationMessage, showErrorMessage, showWarningMessage } from '..
 import * as websocket from '../websocket';
 import { getConfig, getConfigPath, check as configCheck } from '../config';
 
+
+let buildProcess: cp.ChildProcess = null;
+
 const uploadFile = async (uri: vscode.Uri) => {
     var sftpExt = vscode.extensions.getExtension('liximomo.sftp');
     if (sftpExt && sftpExt.isActive) {
@@ -66,35 +69,40 @@ export default async function (document: vscode.TextDocument) {
         } catch (error) { }
 
         if (rollupConfDoc) {
-            logger.info(`${appCode} : building...`);
-            const warcherPath = `**/*.{css,js}`;
+            const warcherPath = `**/*.{css,js,map}`;
             const watcher = vscode.workspace.createFileSystemWatcher(warcherPath);
 
-            let fileToUpload: vscode.Uri[] = [];
+            let fileToUpload: string[] = [];
 
             watcher.onDidChange(uri => {
-                fileToUpload.push(uri);
+                fileToUpload.push(uri.fsPath);
             });
 
             watcher.onDidCreate(uri => {
-                fileToUpload.push(uri);
+                fileToUpload.push(uri.fsPath);
             });
 
-            cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
+            if (buildProcess && !buildProcess.killed) {
+                buildProcess.kill();
+                logger.info('cancel previous build process');
+            }
+
+            logger.info(`${appCode} : building...`);
+            buildProcess = cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
+                if (err) {
+                    watcher.dispose();
+                    console.log('error: ' + err);
+                    return;
+                }
                 stdout && logger.info(stdout);
                 stderr && logger.info(stderr);
                 showInformationMessage(`Build completed on ${appCode} project`);
-                if (err) {
-                    logger.error('error: ' + err);
-                    showErrorMessage(`${appCode} : ${err}`);
-                }
-
-
 
                 if (getConfig().uploadOnSave) {
                     await sleep(1000);
-                    await Promise.all(fileToUpload.map(async (file) => {
-                        await uploadFile(file);
+                    const files = [...new Set(fileToUpload)];
+                    await Promise.all(files.map(async (file) => {
+                        await uploadFileByPath(file);
                     }))
                 }
                 if (getConfig().liveReload) {
@@ -102,6 +110,8 @@ export default async function (document: vscode.TextDocument) {
                 }
                 watcher.dispose();
             });
+
+
         } else {
             showWarningMessage('rollup.config.js not found');
         }
