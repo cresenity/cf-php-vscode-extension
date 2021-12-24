@@ -88,7 +88,7 @@ export default async function (document: vscode.TextDocument) {
             }
 
             logger.info(`${appCode} : building...`);
-            buildProcess = cp.exec(`cd ${appPath} && npm run dev`, async (err, stdout, stderr) => {
+            buildProcess = cp.exec(`npm run dev -C ${appPath} `, async (err, stdout, stderr) => {
                 if (err) {
                     watcher.dispose();
                     console.log('error: ' + err);
