@@ -1,4 +1,4 @@
-export const VIEW_REGEX = "(?<=view\\(|@include\\(|@extends\\(|@component\\(|addView\\(|CView::factory\\(|Inertia::render\\()(['\"])[^'\"]*\\1";
+export const VIEW_REGEX = "(?<=view\\(|@include\\(|@extends\\(|@component\\(|addView\\(|setView\\(|CView::factory\\(|Inertia::render\\()(['\"])[^'\"]*\\1";
 export const EXTENSION_NAME = 'phpcf';
 
 

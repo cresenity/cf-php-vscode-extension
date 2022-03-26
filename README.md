@@ -23,3 +23,10 @@ Search views according to the configured extensions.
 ## viewQuickJump
 
 Use `Ctrl` or `Alt` + `click` to jump to the first matched file.
+
+
+# Change Log
+
+## V1.0.14
+
+Add Document Link on ->setView(
