@@ -3,7 +3,7 @@ VSCode extension for PHP Cresenity Framework
 
 # Settings
 
-## viewMaxLinesCount
+## maxLineScanningCount
 Maximum number of scanning rows.
 
 Default: 666
@@ -22,8 +22,11 @@ Search views according to the configured extensions.
 
 ## viewQuickJump
 
-Use `Ctrl` or `Alt` + `click` to jump to the first matched file.
+Use `Ctrl` or `Alt` + `click` to jump to the first matched file for views.
 
+## uriControllerQuickJump
+
+Use `Ctrl` or `Alt` + `click` to jump to the first matched file for uri controller.
 
 # Change Log
 
