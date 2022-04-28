@@ -30,3 +30,13 @@ Use `Ctrl` or `Alt` + `click` to jump to the first matched file.
 ## V1.0.14
 
 Add Document Link on ->setView(
+
+
+## V1.1.0
+
+Add Controller Uri on c::redirect(), c::url() and curl::redirect()
+Change config name from viewMaxLinesCount to maxLineScanningCount (use both for scanning view and uri controller)
+
+## V1.1.1
+
+minor fix for folder scan priority

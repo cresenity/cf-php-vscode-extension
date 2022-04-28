@@ -11,7 +11,7 @@ import {
 } from "vscode";
 import * as util from '../util';
 
-import { VIEW_REGEX } from "../constant";
+import { CONTROLLER_URL_REGEX, VIEW_REGEX } from "../constant";
 
 export default class HoverProvider implements vsHoverProvider {
     provideHover(doc: TextDocument, pos: Position): ProviderResult<Hover> {
@@ -19,20 +19,32 @@ export default class HoverProvider implements vsHoverProvider {
         let reg = new RegExp(VIEW_REGEX);
         let linkRange = doc.getWordRangeAtPosition(pos, reg);
 
+        if(linkRange) {
 
-        if (!linkRange) return
+            let filePaths = util.getFilePaths(doc.getText(linkRange), doc);
+            let workspaceFolder = workspace.getWorkspaceFolder(doc.uri);
+            if (filePaths.length > 0) {
+                let text: string = "";
 
-        let filePaths = util.getFilePaths(doc.getText(linkRange), doc);
-        let workspaceFolder = workspace.getWorkspaceFolder(doc.uri);
-        if (filePaths.length > 0) {
-            let text: string = "";
+                for (let i in filePaths) {
+                    // text += config.viewFolderTip ? `\`${filePaths[i].name}\`` : '';
+                    text += ` [${workspaceFolder.name + filePaths[i].showPath}](${filePaths[i].fileUri})  \r`;
+                }
 
-            for (let i in filePaths) {
-                // text += config.viewFolderTip ? `\`${filePaths[i].name}\`` : '';
-                text += ` [${workspaceFolder.name + filePaths[i].showPath}](${filePaths[i].fileUri})  \r`;
+                return new Hover(new MarkdownString(text));
+            }
+        }
+        reg = new RegExp(CONTROLLER_URL_REGEX);
+        linkRange = doc.getWordRangeAtPosition(pos, reg);
+        if(linkRange) {
+
+            let routeData = util.getRouteData(doc.getText(linkRange), doc);
+            if(routeData) {
+                let text = ` [${routeData.path}](${routeData.fileUri})  \r`;
+                return new Hover(new MarkdownString(text));
             }
 
-            return new Hover(new MarkdownString(text));
         }
     }
+
 }
