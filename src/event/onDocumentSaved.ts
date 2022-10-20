@@ -11,12 +11,17 @@ let buildProcess: cp.ChildProcess = null;
 
 const uploadFile = async (uri: vscode.Uri) => {
     var sftpExt = vscode.extensions.getExtension('liximomo.sftp');
+
+    if (!sftpExt) {
+        sftpExt = vscode.extensions.getExtension('natizyskunk.sftp');
+    }
+
     if (sftpExt && sftpExt.isActive) {
         logger.info(`uploading : ${uri.fsPath}`);
         await vscode.commands.executeCommand('sftp.upload.file', uri);
         logger.info(`uploaded : ${uri.fsPath}`);
     } else {
-        showWarningMessage(`liximomo.sftp extension is required to automatic upload files`);
+        showWarningMessage(`liximomo.sftp/natizyskunk.sftp extension is required to automatic upload files`);
     }
 }
 

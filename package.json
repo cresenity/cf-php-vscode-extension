@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": "https://github.com/cresenity/cf-php-vscode-extension",
@@ -61,10 +61,10 @@
         "@types/lru-cache": "^5.1.1",
         "@types/mocha": "^9.0.0",
         "@types/node": "^16.10.3",
-        "@types/vscode": "^1.61.0",
         "eslint": "^8.0.0",
         "mocha": "^9.1.2",
-        "typescript": "^4.4.3"
+        "typescript": "^4.4.3",
+        "vscode": "^1.1.37"
     },
     "dependencies": {
         "@types/websocket": "^1.0.4",
