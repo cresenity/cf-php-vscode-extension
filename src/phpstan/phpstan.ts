@@ -158,7 +158,7 @@ class Phpstan {
                 if (result !== null) {
                     result.removeCallback();
                 }
-                this.diagnosticCollection.clear();
+
                 if (code !== 1) {
                     const data: any[] = results
                         .split("\n")
@@ -223,11 +223,7 @@ class Phpstan {
                     delete this._current[updatedDocument.fileName];
                     this.hideStatusBar();
 
-                    if (data.length > 0) {
 
-                        console.log(results);
-                        return;
-                    }
                 }
 
                 let autoloadError = false;
@@ -279,12 +275,12 @@ class Phpstan {
                 let errors = [].concat.apply([], Object.values(this._errors));
 
 
+                this.diagnosticCollection.clear();
                 this.handleDiagnosticErrors(
                     documents,
                     errors,
                     this._diagnosticCollection
                 );
-
                 this.hideStatusBar();
             });
         }, 300);

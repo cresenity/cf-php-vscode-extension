@@ -28,7 +28,11 @@ class CF {
         }
     }
 
+    public getAppCodeFromDocument(document : vscode.TextDocument) {
+        let relativePath = path.relative(this.docRoot, document.uri.fsPath);
 
+        return this.appCode(relativePath);
+    }
     public appCode(relativePath: string): string {
         let relativePathExploded = relativePath.split(path.sep);
         let appCode = null;

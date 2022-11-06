@@ -192,3 +192,7 @@ export function waitFor(callback: () => boolean): Promise < void> {
         tmp();
     });
 }
+
+export function sleep(ms:number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
