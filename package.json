@@ -5,11 +5,14 @@
     "version": "1.2.2",
     "publisher": "cresenity",
     "license": "MIT",
-    "repository": "https://github.com/cresenity/cf-php-vscode-extension",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cresenity/cf-php-vscode-extension"
+    },
     "engines": {
         "vscode": "^1.61.0"
     },
-    "icon": "https://github.com/cresenity/cf-php-vscode-extension/blob/main/images/icon.png?raw=true",
+    "icon": "images/icon.png",
     "activationEvents": [
         "workspaceContains:cf"
     ],
