@@ -5,6 +5,8 @@ import logger from '../logger';
 import { showInformationMessage, showErrorMessage, showWarningMessage } from '../host';
 import * as websocket from '../websocket';
 import { getConfig, getConfigPath, check as configCheck } from '../config';
+import cf from '../cf';
+import phpstan from '../phpstan/phpstan';
 
 
 let buildProcess: cp.ChildProcess = null;
@@ -46,11 +48,19 @@ export default async function (document: vscode.TextDocument) {
     }
 
     logger.info('file saved');
+
     let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri).uri.fsPath;
     let relativePath = path.relative(workspaceFolder, document.uri.fsPath);
     let relativePathExploded = relativePath.split(path.sep);
 
     let isValid = false;
+    const isPhpstanCheck = relativePathExploded.length >= 2;
+    if(isPhpstanCheck) {
+        if(relativePathExploded[0] == 'application' && cf.isPhpstanInstalled()) {
+            phpstan.updateDocument(document);
+        }
+    }
+
     isValid = relativePathExploded.length >= 4;
 
     if (isValid) {
