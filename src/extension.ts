@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
 import LinkProvider from './providers/linkProvider';
 import HoverProvider from './providers/hoverProvider';
-import * as path from "path";
-import * as fs from "fs";
 import initCommands from "./initCommands";
 import { checkNewAnnouncement } from './announcement';
 import app from './app';
@@ -12,23 +10,15 @@ import logger from './logger';
 import onDocumentSaved from './event/onDocumentSaved';
 import * as websocket from './websocket';
 import * as config from './config';
+import cf from './cf';
+import phpstan from './phpstan/phpstan';
 
 export async function activate(context: vscode.ExtensionContext) {
 
     //check is cf project
 
-    let isCF = false;
-    if (vscode.workspace.workspaceFolders.length > 0) {
-        vscode.workspace.workspaceFolders.forEach(element => {
-            let root = element.uri.fsPath;
-            let cfFile = root + path.sep + 'cf';
-            if (fs.existsSync(cfFile)) {
-                isCF = true;
-            }
-        });
-    }
 
-    if (isCF) {
+    if (cf.isCF()) {
 
         //register command
         try {
@@ -47,8 +37,20 @@ export async function activate(context: vscode.ExtensionContext) {
 
         app.statusBar.show();
 
-        showInformationMessage('PHP CF is Activated');
-        logger.info('PHP CF Activated');
+
+        const title = 'PHP CF VSCODE is Activated';
+        logger.info(title);
+        let infoItems : string[] = [];
+        infoItems.push('phpcf ' + (cf.isPhpcfInstalled() ? '✅':'⛔'));
+
+        const isPhpstanEnabled = cf.isPhpstanEnabled();
+        infoItems.push('phpstan ' + ( cf.isPhpstanInstalled() ? '✅':'⛔'));
+        if(isPhpstanEnabled) {
+            context.subscriptions.push(phpstan);
+            context.subscriptions.push(phpstan.diagnosticCollection);
+        }
+        showInformationMessage(title, ...infoItems);
+
         let hover = vscode.languages.registerHoverProvider(['php', 'blade'], new HoverProvider());
         let link = vscode.languages.registerDocumentLinkProvider(['php', 'blade'], new LinkProvider());
 

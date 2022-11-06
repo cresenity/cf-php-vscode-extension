@@ -45,7 +45,22 @@
                     "minItems": 1,
                     "uniqueItems": true,
                     "description": "Multiple extensions"
+                },
+                "phpcf.phpstan": {
+                    "type": "object",
+                    "default": {
+                        "enabled":false
+                    },
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+							"description": "Indicates PHPStan enable or not"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "description": "Phpstan setting"
                 }
+
             }
         }
     },
@@ -77,6 +92,7 @@
         "opn": "^5.4.0",
         "p-queue": "^7.1.0",
         "ssh-config": "^4.0.6",
+        "tmp": "^0.2.1",
         "vsls": "^0.3.967",
         "websocket": "^1.0.34"
     }
