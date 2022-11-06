@@ -158,7 +158,6 @@ class Phpstan {
                 if (result !== null) {
                     result.removeCallback();
                 }
-                this.diagnosticCollection.clear();
                 if (code !== 1) {
                     const data: any[] = results
                         .split("\n")
@@ -279,12 +278,12 @@ class Phpstan {
                 let errors = [].concat.apply([], Object.values(this._errors));
 
 
+                this.diagnosticCollection.clear();
                 this.handleDiagnosticErrors(
                     documents,
                     errors,
                     this._diagnosticCollection
                 );
-
                 this.hideStatusBar();
             });
         }, 300);
