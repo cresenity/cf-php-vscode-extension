@@ -28,6 +28,17 @@ Use `Ctrl` or `Alt` + `click` to jump to the first matched file for views.
 
 Use `Ctrl` or `Alt` + `click` to jump to the first matched file for uri controller.
 
+
+## phpstan
+
+enable/disable phpstan for phpcf.
+
+```json
+"phpcf.phpstan": [
+    "enabled" : true
+]
+```
+
 # Change Log
 
 ## V1.0.14
@@ -43,3 +54,8 @@ Change config name from viewMaxLinesCount to maxLineScanningCount (use both for 
 ## V1.1.1
 
 minor fix for folder scan priority
+
+
+## V1.2.0
+
+Add integration for phpstan (phpcf must be instaled through composer)
