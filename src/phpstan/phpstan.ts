@@ -158,6 +158,7 @@ class Phpstan {
                 if (result !== null) {
                     result.removeCallback();
                 }
+
                 if (code !== 1) {
                     const data: any[] = results
                         .split("\n")
@@ -222,11 +223,7 @@ class Phpstan {
                     delete this._current[updatedDocument.fileName];
                     this.hideStatusBar();
 
-                    if (data.length > 0) {
 
-                        console.log(results);
-                        return;
-                    }
                 }
 
                 let autoloadError = false;
