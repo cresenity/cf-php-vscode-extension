@@ -33,7 +33,7 @@ class CF {
 
         return this.appCode(relativePath);
     }
-    public appCode(relativePath: string): string {
+    public appCode(relativePath: string): string|null {
         let relativePathExploded = relativePath.split(path.sep);
         let appCode = null;
         if (relativePathExploded.length > 2) {
@@ -51,6 +51,16 @@ class CF {
     public isPhpstanEnabled() : boolean {
         const config = vscode.workspace.getConfiguration('phpcf');
         return this.isPhpstanInstalled() && config.phpstan.enabled;
+    }
+    public isPhpstanInstalledOnAppCode(appCode:string): boolean {
+        const phpstanDir = this.docRoot + path.sep + 'application' + path.sep + appCode + path.sep;
+        const phpstanConfig = "phpstan.neon";
+        const phpstanConfigPath = phpstanDir + phpstanConfig;
+        if (fs.existsSync(phpstanConfigPath)) {
+            return true;
+
+        }
+        return false;
     }
     public isPhpstanInstalled(): boolean {
         const phpstanDir = this.docRoot + path.sep + '.bin' + path.sep + 'phpstan' + path.sep;

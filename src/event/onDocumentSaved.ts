@@ -15,7 +15,7 @@ export default async function (document: vscode.TextDocument) {
     logger.info("file saved");
 
     let appCode = cf.getAppCodeFromDocument(document);
-    if (appCode) {
+    if (appCode!=null && cf.isPhpstanInstalledOnAppCode(appCode)) {
         phpstan.updateDocument(document);
     }
 

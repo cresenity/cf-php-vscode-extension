@@ -66,7 +66,10 @@ class Phpstan {
             this.hideStatusBar();
             return;
         }
+
         const appRoot = this.appRoot(updatedDocument);
+
+
         if (appRoot == null) {
             this.hideStatusBar();
             return;
@@ -226,6 +229,7 @@ class Phpstan {
 
                 }
 
+                //console.log(results);
                 let autoloadError = false;
                 const data: ICheckResult[] = results
                     .split("\n")
