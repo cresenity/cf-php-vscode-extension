@@ -15,7 +15,7 @@ import {
     Range,
     commands,
     Disposable,
-    DiagnosticSeverity,
+    DiagnosticSeverity
 } from "vscode";
 import cf from "../cf";
 import { waitFor } from "../util";
@@ -267,7 +267,7 @@ class Phpstan {
                         return {
                             file: updatedDocument.fileName,
                             line: line,
-                            msg: `[phpstan] ${error}`,
+                            msg: `${error}`,
                         };
                     })
                     .filter((x) => x !== null && !isNaN(x.line));
@@ -360,6 +360,7 @@ class Phpstan {
                 endColumn
             );
             let diagnostic = new Diagnostic(range, error.msg, severity);
+            diagnostic.source = 'phpstan';
             let diagnostics = diagnosticMap.get(canonicalFile);
             if (!diagnostics) {
                 diagnostics = [];
