@@ -127,7 +127,7 @@ class Phpstan {
 
             this._numQueued--;
             this._current[updatedDocument.fileName] = child_process.spawn(
-                "phpcf",
+                cf.getPhpcfPath(),
                 ["phpstan", filePath, "--format=raw","--no-progress"],
                 options
             );
@@ -147,7 +147,7 @@ class Phpstan {
             this._current[updatedDocument.fileName].on("error", (err) => {
                 if (err.message.indexOf("ENOENT") !== -1) {
                     window.showErrorMessage(
-                        "[phpstan] Failed to find phpcf, the given path doesn't exist."
+                        "[phpstan] Failed to find phpcf, the given path doesn't exist." + err.message
                     );
                 }
             });
