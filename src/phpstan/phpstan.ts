@@ -360,7 +360,7 @@ class Phpstan {
                 endColumn
             );
             let diagnostic = new Diagnostic(range, error.msg, severity);
-            diagnostic.source = 'phpstan';
+            diagnostic.source = 'phpcf.phpstan';
             let diagnostics = diagnosticMap.get(canonicalFile);
             if (!diagnostics) {
                 diagnostics = [];
