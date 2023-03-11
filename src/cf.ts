@@ -67,13 +67,7 @@ class CF {
         const phpstanBinary = "phpstan" + (process.platform === "win32" ? ".bat" : "");
         const phpstanPath = phpstanDir + phpstanBinary;
         if (fs.existsSync(phpstanPath)) {
-            // Check if we have permission to execute this file
-            try {
-
-                fs.accessSync(phpstanPath, fs.constants.X_OK);
-                return true;
-            } catch (exception) {
-            }
+            return true;
         }
         return false;
     }
@@ -115,6 +109,7 @@ class CF {
         for (const globalPath of globalPaths) {
             paths.push(globalPath + path.sep + executableName);
         }
+        console.log(paths)
         for (const path of paths) {
             if (fs.existsSync(path)) {
                 // Check if we have permission to execute this file
