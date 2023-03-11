@@ -147,7 +147,7 @@ class Phpstan {
             this._current[updatedDocument.fileName].on("error", (err) => {
                 if (err.message.indexOf("ENOENT") !== -1) {
                     window.showErrorMessage(
-                        "[phpstan] Failed to find phpcf, the given path doesn't exist."
+                        "[phpstan] Failed to find phpcf, the given path doesn't exist. (" + err.message + ")"
                     );
                 }
             });

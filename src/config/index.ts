@@ -63,4 +63,3 @@ export const getConfig = (): cfConfigType => {
 export const getConfigPath = (): string => {
     return configPath;
 }
-
