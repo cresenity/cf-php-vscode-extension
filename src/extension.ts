@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import LinkProvider from './providers/linkProvider';
 import HoverProvider from './providers/hoverProvider';
+import ViewItemProvider from './providers/viewItemProvider';
 import initCommands from "./initCommands";
 import { checkNewAnnouncement } from './announcement';
 import app from './app';
@@ -13,6 +14,16 @@ import * as config from './config';
 import cf from './cf';
 import phpstan from './phpstan/phpstan';
 import { CFController } from "./controller";
+
+
+export const DOCUMENT_SELECTOR = [
+    { scheme: "file", language: "php" },
+    { scheme: "untitled", language: "php" },
+    { scheme: "file", language: "blade" },
+    { scheme: "file", language: "laravel-blade" },
+];
+
+export const TRIGGER_CHARACTERS = ['"', "'", ">"];
 export async function activate(context: vscode.ExtensionContext) {
 
     //check is cf project
@@ -57,6 +68,14 @@ export async function activate(context: vscode.ExtensionContext) {
             context.subscriptions.push(phpstan);
             context.subscriptions.push(phpstan.diagnosticCollection);
         }
+
+        context.subscriptions.push(
+            vscode.languages.registerCompletionItemProvider(
+              DOCUMENT_SELECTOR,
+              new ViewItemProvider(),
+              ...TRIGGER_CHARACTERS
+            )
+          );
     }
 }
 

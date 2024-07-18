@@ -85,6 +85,7 @@
         "vscode": "^1.1.37"
     },
     "dependencies": {
+        "php-parser": "^3.0.1",
         "@types/websocket": "^1.0.4",
         "fs-extra": "^10.0.0",
         "ftp": "^0.3.10",

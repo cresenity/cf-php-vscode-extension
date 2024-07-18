@@ -4,11 +4,15 @@ import * as fs from "fs";
 class CF {
     private phpcfPath: string | null = null;
     private docRoot:string|null = null;
+
+
     constructor() {
         this.detectCF();
         this.findPhpcf();
     }
-
+    public getTriggerCharacters() {
+        return ['"', "'", ">"];
+    }
     public getDocRoot() {
         return this.docRoot;
     }
@@ -28,6 +32,26 @@ class CF {
         }
     }
 
+    public getAppRoot(document : vscode.TextDocument = null) {
+        const appCode = this.getAppCode(document);
+        if(appCode) {
+            return this.docRoot + path.sep + 'application' + path.sep + appCode;
+        }
+        return null;
+    }
+    public getAppCode(document : vscode.TextDocument = null) {
+        if(document==null) {
+            document = vscode.window.activeTextEditor?.document ?? null;
+        }
+        if(document) {
+            return this.getAppCodeFromDocument(document);
+        }
+        return null;
+    }
+    public isOnAppDirectory(document : vscode.TextDocument = null) {
+        return this.getAppCode(document) != null;
+    }
+
     public getAppCodeFromDocument(document : vscode.TextDocument) {
         let relativePath = path.relative(this.docRoot, document.uri.fsPath);
 
@@ -43,7 +67,12 @@ class CF {
         }
         return appCode;
     }
-
+    public hasAutoload(): boolean {
+        return fs.existsSync(this.docRoot + path.sep + "vendor/autoload.php");
+    }
+    public hasBootstrapApp(): boolean {
+        return fs.existsSync(this.docRoot + path.sep + "bootstrap/app.php");
+    }
     public isPhpcfInstalled(): boolean {
 
         return this.phpcfPath != null;
@@ -109,7 +138,7 @@ class CF {
         for (const globalPath of globalPaths) {
             paths.push(globalPath + path.sep + executableName);
         }
-        console.log(paths)
+        //console.log(paths)
         for (const path of paths) {
             if (fs.existsSync(path)) {
                 // Check if we have permission to execute this file
