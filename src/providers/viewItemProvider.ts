@@ -63,13 +63,13 @@ export default class ViewItemProvider implements CompletionItemProvider {
         }
     }
 
-    syncViews(appCode) {
-        getViews().then((views) => {
-            if(views) {
-                this.views[appCode] = JSON.parse(views);
-            }
+    async syncViews(appCode) {
+        const views = await getViews();
+        if (!views) {
+            return;
+        }
+        this.views[appCode] = JSON.parse(views);
 
-        });
     }
 
     watchViews() {
