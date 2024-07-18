@@ -11,16 +11,21 @@ import { getActiveWorkspace } from "./../util";
 import { getViews } from "./../php/view";
 import Parser from "./../parser/index";
 import { isNull } from "util";
+import cf from "../cf";
 
 export default class ViewItemProvider implements CompletionItemProvider {
-    private views: any = null;
+    private views: Array<any> = [];
 
     private watcher: any = null;
 
     constructor() {
-        this.syncViews();
-
+        const appCode = cf.getAppCode();
+        if(appCode) {
+            this.syncViews(appCode);
+        }
         this.watchViews();
+
+
     }
 
     async provideCompletionItems(
@@ -35,29 +40,31 @@ export default class ViewItemProvider implements CompletionItemProvider {
             return items;
         }
 
-        if (isNull(this.views)) {
-            await this.syncViews();
+        const appCode = cf.getAppCode(document);
+        if(appCode) {
+            if (!this.views[appCode]) {
+                await this.syncViews(appCode);
+            }
+
+            for (let view of this.views) {
+                const item = new CompletionItem(view, CompletionItemKind.Constant);
+
+                item.range = document.getWordRangeAtPosition(
+                    position,
+                    /[\w\d\-_\.\:\\\/]+/g
+                );
+
+                items.push(item);
+            }
+
+            return items;
         }
-
-        for (let view of this.views) {
-            const item = new CompletionItem(view, CompletionItemKind.Constant);
-
-            item.range = document.getWordRangeAtPosition(
-                position,
-                /[\w\d\-_\.\:\\\/]+/g
-            );
-
-            items.push(item);
-        }
-
-        return items;
     }
 
-    syncViews() {
-        console.log('syncViews')
+    syncViews(appCode) {
         getViews().then((views) => {
             if(views) {
-                this.views = JSON.parse(views);
+                this.views[appCode] = JSON.parse(views);
             }
 
         });
@@ -77,8 +84,11 @@ export default class ViewItemProvider implements CompletionItemProvider {
     }
 
     onChange() {
-        setInterval(() => {
-            this.syncViews();
-        }, 5000);
+        const appCode = cf.getAppCode();
+        if(appCode) {
+            setInterval(() => {
+                this.syncViews(appCode);
+            }, 5000);
+        }
     }
 }
