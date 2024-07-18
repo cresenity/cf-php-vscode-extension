@@ -59,3 +59,7 @@ minor fix for folder scan priority
 ## V1.2.0
 
 Add integration for phpstan (phpcf must be instaled through composer)
+
+## V1.3.0
+
+Add autocomplete for view
