@@ -13,7 +13,7 @@ export default class PHP {
         //if (cf.hasAutoload() && cf.hasBootstrapApp()) {
 
         var script = this.getScript(code);
-        const cwd = cf.getAppRoot();
+        const cwd = cf.getAppRoot(document);
         console.log('cwd:' + cwd);
         if(cwd!=null) {
             var out: string | null | RegExpExecArray = await this.execute(

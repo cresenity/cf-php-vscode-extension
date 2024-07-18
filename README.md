@@ -74,3 +74,6 @@ Add autocomplete for permission
 
 ## V1.3.3
 Add Code Action For Class Not Found
+
+## V1.3.3
+Add Refactor Action For phpcf model:update

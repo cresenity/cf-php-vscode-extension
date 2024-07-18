@@ -19,6 +19,7 @@ import TranslationItemProvider from "./providers/translationItemProvider";
 import PermissionItemProvider from "./providers/permissionItemProvider";
 import classNotFoundSolutionProvider from "./providers/classNotFoundCodeActionProvider";
 import ClassNotFoundCodeActionProvider from "./providers/classNotFoundCodeActionProvider";
+import ModelUpdateCodeActionProvider from "./providers/modelUpdateCodeActionProvider";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
@@ -111,6 +112,16 @@ export async function activate(context: vscode.ExtensionContext) {
                 new ClassNotFoundCodeActionProvider(),
                 {
                     providedCodeActionKinds: ClassNotFoundCodeActionProvider.providedCodeActionKinds
+                }
+            )
+        );
+
+        context.subscriptions.push(
+            vscode.languages.registerCodeActionsProvider(
+                'php',
+                new ModelUpdateCodeActionProvider(),
+                {
+                    providedCodeActionKinds: ModelUpdateCodeActionProvider.providedCodeActionKinds
                 }
             )
         );

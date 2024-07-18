@@ -7,12 +7,14 @@ import { createCommand } from './commands/abstract/createCommand';
 
 import toggleOutputCommand from './commands/toggleOutputCommand';
 import createClassFileCommand from './commands/createClassFileCommand';
+import modelUpdateCommand from './commands/modelUpdateCommand';
 
 
 
 export default function init(context: ExtensionContext) {
     loadCommand(context,toggleOutputCommand);
     loadCommand(context,createClassFileCommand);
+    loadCommand(context,modelUpdateCommand);
 }
 
 

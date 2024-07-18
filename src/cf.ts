@@ -138,7 +138,7 @@ class CF {
         for (const globalPath of globalPaths) {
             paths.push(globalPath + path.sep + executableName);
         }
-        //console.log(paths)
+        console.log(paths)
         for (const path of paths) {
             if (fs.existsSync(path)) {
                 // Check if we have permission to execute this file
