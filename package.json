@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": {
@@ -17,6 +17,12 @@
         "workspaceContains:cf"
     ],
     "contributes": {
+        "commands": [
+            {
+              "command": "phpcf.createClassFile",
+              "title": "Create PHP Class File on CF"
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "PHP CF configuration",

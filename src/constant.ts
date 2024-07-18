@@ -9,3 +9,4 @@ export const COMMAND_TOGGLE_OUTPUT = 'phpcf.toggleOutput';
 
 
 // commands in package.json
+export const COMMAND_CREATE_CLASS_FILE = 'phpcf.createClassFile';

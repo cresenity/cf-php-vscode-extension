@@ -40,3 +40,17 @@ export function getConfigElements() {
 
     return PHP.run(script);
 }
+
+
+
+export async function getConfig(key:string) {
+    const script = `
+        echo json_encode(CF::config('`+key+`'));
+    `;
+
+    const out = await PHP.run(script);
+    if(out) {
+        return JSON.parse(out);
+    }
+    return null;
+}

@@ -6,11 +6,13 @@ import Command from './commands/abstract/command';
 import { createCommand } from './commands/abstract/createCommand';
 
 import toggleOutputCommand from './commands/toggleOutputCommand';
+import createClassFileCommand from './commands/createClassFileCommand';
 
 
 
 export default function init(context: ExtensionContext) {
     loadCommand(context,toggleOutputCommand);
+    loadCommand(context,createClassFileCommand);
 }
 
 

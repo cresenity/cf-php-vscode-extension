@@ -71,3 +71,6 @@ Fix prevent run phpstan when phpcf is not installed
 Add autocomplete for translation
 Add autocomplete for config
 Add autocomplete for permission
+
+## V1.3.3
+Add Code Action For Class Not Found

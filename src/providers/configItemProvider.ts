@@ -1,16 +1,14 @@
 import * as vscode from "vscode";
 import Parser from "./../parser/index";
-import { getConfigElements } from "./../php/config";
-import { isNull } from "util";
 import cf from "../cf";
+import configRepository from "../repository/configRepository";
 
 export default class ConfigItemProvider {
-    private elements: Array<any> = [];
 
     constructor() {
         const appCode = cf.getAppCode();
         if(appCode) {
-            this.syncConfig(appCode);
+            configRepository.syncConfig(appCode);
         }
 
     }
@@ -28,37 +26,24 @@ export default class ConfigItemProvider {
         }
         const appCode = cf.getAppCode(document);
         if(appCode) {
-            if (!this.elements[appCode]) {
-                await this.syncConfig(appCode);
+            const elements = await configRepository.get(document);
+            for (let element of elements) {
+                const item = new vscode.CompletionItem(
+                    element,
+                    vscode.CompletionItemKind.Constant
+                );
+
+                item.range = document.getWordRangeAtPosition(
+                    position,
+                    /[\w\d\-_\.\:\\\/]+/g
+                );
+
+                items.push(item);
             }
-            if(this.elements[appCode]) {
 
-                for (let element of this.elements[appCode]) {
-                    const item = new vscode.CompletionItem(
-                        element,
-                        vscode.CompletionItemKind.Constant
-                    );
-
-                    item.range = document.getWordRangeAtPosition(
-                        position,
-                        /[\w\d\-_\.\:\\\/]+/g
-                    );
-
-                    items.push(item);
-                }
-            }
         }
 
         return items;
     }
 
-    async syncConfig(appCode) {
-        await getConfigElements().then((elements) => {
-            if (!elements) {
-                return;
-            }
-
-            this.elements[appCode] = Object.values(JSON.parse(elements));
-        });
-    }
 }

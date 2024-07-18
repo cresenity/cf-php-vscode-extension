@@ -17,6 +17,8 @@ import { CFController } from "./controller";
 import ConfigItemProvider from "./providers/configItemProvider";
 import TranslationItemProvider from "./providers/translationItemProvider";
 import PermissionItemProvider from "./providers/permissionItemProvider";
+import classNotFoundSolutionProvider from "./providers/classNotFoundCodeActionProvider";
+import ClassNotFoundCodeActionProvider from "./providers/classNotFoundCodeActionProvider";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
@@ -102,6 +104,17 @@ export async function activate(context: vscode.ExtensionContext) {
                 ...TRIGGER_CHARACTERS
             )
         );
+        // action provider
+        context.subscriptions.push(
+            vscode.languages.registerCodeActionsProvider(
+                'php',
+                new ClassNotFoundCodeActionProvider(),
+                {
+                    providedCodeActionKinds: ClassNotFoundCodeActionProvider.providedCodeActionKinds
+                }
+            )
+        );
+
     }
 }
 

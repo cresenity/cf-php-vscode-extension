@@ -1,46 +1,46 @@
-import * as vscode from 'vscode';
-import app from '../app';
-import { EXTENSION_NAME } from '../constant';
-import StatusBar from './StatusBar';
+import * as vscode from "vscode";
+import app from "../app";
+import { EXTENSION_NAME } from "../constant";
+import StatusBar from "./StatusBar";
 
 let isShow = false;
 const outputChannel = vscode.window.createOutputChannel(EXTENSION_NAME);
 
 export function show() {
-  app.statusBar.updateStatus(StatusBar.Status.ok);
-  outputChannel.show();
-  isShow = true;
+    app.statusBar.updateStatus(StatusBar.Status.ok);
+    outputChannel.show();
+    isShow = true;
 }
 
 export function hide() {
-  outputChannel.hide();
-  isShow = false;
+    outputChannel.hide();
+    isShow = false;
 }
 
 export function toggle() {
-  if (isShow) {
-    hide();
-  } else {
-    show();
-  }
+    if (isShow) {
+        hide();
+    } else {
+        show();
+    }
 }
 
 export function print(...args) {
-  const msg = args
-    .map(arg => {
-      if (!arg) {
-        return arg;
-      }
+    const msg = args
+        .map((arg) => {
+            if (!arg) {
+                return arg;
+            }
 
-      if (arg instanceof Error) {
-        return arg.stack;
-      } else if (!arg.toString || arg.toString() === '[object Object]') {
-        return JSON.stringify(arg);
-      }
+            if (arg instanceof Error) {
+                return arg.stack;
+            } else if (!arg.toString || arg.toString() === "[object Object]") {
+                return JSON.stringify(arg);
+            }
 
-      return arg;
-    })
-    .join(' ');
+            return arg;
+        })
+        .join(" ");
 
-  outputChannel.appendLine(msg);
+    outputChannel.appendLine(msg);
 }
