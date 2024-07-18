@@ -45,17 +45,19 @@ export default class ViewItemProvider implements CompletionItemProvider {
             if (!this.views[appCode]) {
                 await this.syncViews(appCode);
             }
+            if(this.views[appCode]) {
+                for (let view of this.views[appCode]) {
+                    const item = new CompletionItem(view, CompletionItemKind.Constant);
 
-            for (let view of this.views) {
-                const item = new CompletionItem(view, CompletionItemKind.Constant);
+                    item.range = document.getWordRangeAtPosition(
+                        position,
+                        /[\w\d\-_\.\:\\\/]+/g
+                    );
 
-                item.range = document.getWordRangeAtPosition(
-                    position,
-                    /[\w\d\-_\.\:\\\/]+/g
-                );
-
-                items.push(item);
+                    items.push(item);
+                }
             }
+
 
             return items;
         }
