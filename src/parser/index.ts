@@ -35,7 +35,7 @@ export default class Parser {
         "qualifyColumn",
     ];
 
-    configAliases: Array<string> = ["config", "Config::get"];
+    configAliases: Array<string> = ["config", "CConfig::get", "CF::config"];
 
     routeAliases: Array<string> = ["route"];
 
