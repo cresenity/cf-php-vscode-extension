@@ -16,6 +16,7 @@ import phpstan from "./phpstan/phpstan";
 import { CFController } from "./controller";
 import ConfigItemProvider from "./providers/configItemProvider";
 import TranslationItemProvider from "./providers/translationItemProvider";
+import PermissionItemProvider from "./providers/permissionItemProvider";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
@@ -91,6 +92,13 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.languages.registerCompletionItemProvider(
                 DOCUMENT_SELECTOR,
                 new TranslationItemProvider(),
+                ...TRIGGER_CHARACTERS
+            )
+        );
+        context.subscriptions.push(
+            vscode.languages.registerCompletionItemProvider(
+                DOCUMENT_SELECTOR,
+                new PermissionItemProvider(),
                 ...TRIGGER_CHARACTERS
             )
         );

@@ -53,7 +53,7 @@ Change config name from viewMaxLinesCount to maxLineScanningCount (use both for 
 
 ## V1.1.1
 
-minor fix for folder scan priority
+Minor fix for folder scan priority
 
 
 ## V1.2.0
@@ -63,3 +63,11 @@ Add integration for phpstan (phpcf must be instaled through composer)
 ## V1.3.0
 
 Add autocomplete for view
+
+## V1.3.2
+
+Fix bug autocomplete for view
+Fix prevent run phpstan when phpcf is not installed
+Add autocomplete for translation
+Add autocomplete for config
+Add autocomplete for permission

@@ -39,7 +39,9 @@ export default class Parser {
 
     routeAliases: Array<string> = ["route"];
 
-    translateAliases: Array<string> = ["__", "trans", "trans_choice"];
+    translateAliases: Array<string> = ["__", "trans", "trans_choice", "@lang", "setTitle", "setLabel"];
+
+    permissionAliases: Array<string> = ["permission", "havePermission", "hasPermission", "checkPermission"];
 
     document: TextDocument;
 
@@ -146,6 +148,16 @@ export default class Parser {
             this.tokens,
             this.position,
             this.translateAliases
+        );
+
+        return handler.hasAlias();
+    }
+
+    hasPermission() {
+        const handler = new Handler(
+            this.tokens,
+            this.position,
+            this.permissionAliases
         );
 
         return handler.hasAlias();
