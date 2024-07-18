@@ -113,7 +113,7 @@ export default class PHP {
             }
         }
         require $cfPath . DIRECTORY_SEPARATOR . 'system/core/Bootstrap.php';
-        if(float(CF_VERSION) >= 1.7) {
+        if(floatval(CF_VERSION) >= 1.7) {
             `+ code +`
         }
     `;
