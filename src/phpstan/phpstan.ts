@@ -57,6 +57,10 @@ class Phpstan {
      * @param updatedDocument The document to re-scan
      */
     public async updateDocument(updatedDocument: TextDocument) {
+        if (!cf.isPhpcfInstalled()) {
+            this.hideStatusBar();
+            return;
+        }
         if (!cf.isPhpstanEnabled()) {
             this.hideStatusBar();
             return;
