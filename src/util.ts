@@ -97,12 +97,12 @@ function getAppCodeFromDocument(document: TextDocument) {
     }
     return appCode;
 }
-export function getFilePath(text: string, document: TextDocument) {
-    let paths = getFilePaths(text, document);
+export function getViewFilePath(text: string, document: TextDocument) {
+    let paths = getViewFilePaths(text, document);
     return paths.length > 0 ? paths[0] : null;
 }
 
-export function getFilePaths(text: string, document: TextDocument) {
+export function getViewFilePaths(text: string, document: TextDocument) {
     const workspaceFolder = workspace.getWorkspaceFolder(document.uri).uri
         .fsPath;
     const appCode = getAppCodeFromDocument(document);

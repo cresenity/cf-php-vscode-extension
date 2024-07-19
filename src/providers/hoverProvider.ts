@@ -21,7 +21,7 @@ export default class HoverProvider implements vsHoverProvider {
 
         if(linkRange) {
 
-            let filePaths = util.getFilePaths(doc.getText(linkRange), doc);
+            let filePaths = util.getViewFilePaths(doc.getText(linkRange), doc);
             let workspaceFolder = workspace.getWorkspaceFolder(doc.uri);
             if (filePaths.length > 0) {
                 let text: string = "";

@@ -27,7 +27,7 @@ export default class LinkProvider implements vsDocumentLinkProvider {
 
                 if (result != null) {
                     for (let item of result) {
-                        let file = util.getFilePath(item, doc);
+                        let file = util.getViewFilePath(item, doc);
 
                         if (file != null) {
                             let start = new Position(line.lineNumber, line.text.indexOf(item) + 1);
