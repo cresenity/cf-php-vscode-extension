@@ -17,7 +17,7 @@ export default class PHPCF {
             var out: string | null | RegExpExecArray = await this.execute(
                 command, cwd
             );
-            console.log('out:' + out);
+            console.log('phpcf out:' + out);
             return out;
         }
         return "";

@@ -20,6 +20,9 @@ import PermissionItemProvider from "./providers/permissionItemProvider";
 import classNotFoundSolutionProvider from "./providers/classNotFoundCodeActionProvider";
 import ClassNotFoundCodeActionProvider from "./providers/classNotFoundCodeActionProvider";
 import ModelUpdateCodeActionProvider from "./providers/modelUpdateCodeActionProvider";
+import PhpcsfixerCodeActionProvider from "./providers/phpcsfixerCodeActionProvider";
+import PHPCF from "./phpcf";
+import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
@@ -31,7 +34,6 @@ export const DOCUMENT_SELECTOR = [
 export const TRIGGER_CHARACTERS = ['"', "'", ">"];
 export async function activate(context: vscode.ExtensionContext) {
     //check is cf project
-
     if (cf.isCF()) {
         //register command
         try {
@@ -126,6 +128,17 @@ export async function activate(context: vscode.ExtensionContext) {
             )
         );
 
+        context.subscriptions.push(
+            vscode.languages.registerCodeActionsProvider(
+                'php',
+                new PhpcsfixerCodeActionProvider(),
+                {
+                    providedCodeActionKinds: PhpcsfixerCodeActionProvider.providedCodeActionKinds
+                }
+            )
+        );
+
+        PhpcsfixerFormattingEditProvider.activate(context);
     }
 }
 

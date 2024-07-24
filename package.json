@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.3.401",
+    "version": "1.3.5",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": {
@@ -25,6 +25,10 @@
             {
                 "command": "phpcf.modelUpdate",
                 "title": "Update PHP Doc on model file"
+            },
+            {
+                "command": "phpcf.phpcsfixer",
+                "title": "Run phpcf:php-cs-fixer on file"
             }
         ],
         "configuration": {
@@ -72,7 +76,23 @@
                     },
                     "additionalProperties": false,
                     "description": "Phpstan setting"
+                },
+                "phpcf.phpcsfixer": {
+                    "type": "object",
+                    "default": {
+                        "runOnSave":false
+                    },
+                    "properties": {
+                        "runOnSave": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "Run PHP CS Fixer on save"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "description": "Phpcsfixer setting"
                 }
+
 
             }
         }

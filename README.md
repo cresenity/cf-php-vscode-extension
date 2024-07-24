@@ -34,9 +34,25 @@ Use `Ctrl` or `Alt` + `click` to jump to the first matched file for uri controll
 enable/disable phpstan for phpcf.
 
 ```json
-"phpcf.phpstan": [
+"phpcf.phpstan": {
     "enabled" : true
-]
+}
+```
+
+## php php-cs-fixer default formatter
+```json
+{
+    "[php]": {
+        "editor.defaultFormatter": "cresenity.php-cf"
+    }
+}
+```
+
+## run php-cs-fixer on save
+```json
+"phpcf.phpcsfixer" : {
+    "runOnSave" : true
+}
 ```
 
 # Change Log
@@ -75,5 +91,9 @@ Add autocomplete for permission
 ## V1.3.3
 Add Code Action For Class Not Found
 
-## V1.3.3
+## V1.3.4
 Add Refactor Action For phpcf model:update
+
+## V1.3.5
+Add Refactor Action For phpcf phpcsfixer
+Extension can be defaultFormatter for php with cf php-cs-fixer configuration

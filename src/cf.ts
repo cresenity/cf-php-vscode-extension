@@ -1,15 +1,20 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import CFApp from "./cfapp";
 class CF {
     private phpcfPath: string | null = null;
     private docRoot:string|null = null;
+    private apps : Map<string, CFApp>;
 
 
     constructor() {
+        this.apps = new Map();
         this.detectCF();
         this.findPhpcf();
     }
+
+
     public getTriggerCharacters() {
         return ['"', "'", ">"];
     }
@@ -30,6 +35,26 @@ class CF {
                 }
             });
         }
+    }
+
+
+    public getCFApp(appCode: string) : CFApp|null {
+        const appRoot = this.docRoot + path.sep + 'application' + path.sep + appCode;;
+        if(!fs.existsSync(appRoot)) {
+            return null;
+        }
+        if(!this.apps[appCode]) {
+            this.apps[appCode] = new CFApp(appCode);
+        }
+        return this.apps[appCode];
+
+    }
+    public getCFAppFromDocument(document : vscode.TextDocument = null)  : CFApp|null {
+        const appCode = this.getAppCode(document);
+        if(appCode) {
+            return this.getCFApp(appCode);
+        }
+        return null;
     }
 
     public getAppRoot(document : vscode.TextDocument = null) {
