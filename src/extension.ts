@@ -57,7 +57,7 @@ export async function activate(context: vscode.ExtensionContext) {
         infoItems.push("phpcf " + (cf.isPhpcfInstalled() ? "✅" : "⛔"));
 
         const isPhpstanEnabled = cf.isPhpstanEnabled();
-        infoItems.push("phpstan " + (cf.isPhpstanInstalled() ? "✅" : "⛔"));
+        infoItems.push("phpstan " + (cf.isPhpStanInstalled() ? "✅" : "⛔"));
         showInformationMessage(title, ...infoItems);
 
         let hover = vscode.languages.registerHoverProvider(

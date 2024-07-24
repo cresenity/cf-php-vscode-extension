@@ -79,9 +79,9 @@ class CF {
     }
     public isPhpstanEnabled() : boolean {
         const config = vscode.workspace.getConfiguration('phpcf');
-        return this.isPhpstanInstalled() && config.phpstan.enabled;
+        return this.isPhpStanInstalled() && config.phpstan.enabled;
     }
-    public isPhpstanInstalledOnAppCode(appCode:string): boolean {
+    public isPhpStanInstalledOnAppCode(appCode:string): boolean {
         const phpstanDir = this.docRoot + path.sep + 'application' + path.sep + appCode + path.sep;
         const phpstanConfig = "phpstan.neon";
         const phpstanConfigPath = phpstanDir + phpstanConfig;
@@ -91,16 +91,60 @@ class CF {
         }
         return false;
     }
-    public isPhpstanInstalled(): boolean {
+    public getPhpStanPath() {
         const phpstanDir = this.docRoot + path.sep + '.bin' + path.sep + 'phpstan' + path.sep;
         const phpstanBinary = "phpstan" + (process.platform === "win32" ? ".bat" : "");
         const phpstanPath = phpstanDir + phpstanBinary;
+        return phpstanPath;
+    }
+    public isPhpStanInstalled(): boolean {
+        const phpstanPath = this.getPhpStanPath();
         if (fs.existsSync(phpstanPath)) {
             return true;
         }
         return false;
     }
+    public getPhpCsFixerPath() {
+        const phpCsFixerDir = this.docRoot + path.sep + '.bin' + path.sep + 'php-cs-fixer' + path.sep;
+        const phpCsFixerPhar = "php-cs-fixer.phar";
+        const phpCsFixerPath = phpCsFixerDir + phpCsFixerPhar;
+        return phpCsFixerPath;
+    }
+    public isPhpCsFixerInstalled() {
+        const phpCsFixerPath = this.getPhpCsFixerPath();
+        if (fs.existsSync(phpCsFixerPath)) {
+            return true;
+        }
+        return false;
+    }
 
+    public getPhpCsPath() {
+        const phpCsDir = this.docRoot + path.sep + '.bin' + path.sep + 'phpcs' + path.sep;
+        const phpCsPhar = "phpcs.phar";
+        const phpCsPath = phpCsDir + phpCsPhar;
+        return phpCsPath;
+    }
+    public isPhpCsInstalled() {
+        const phpCsPath = this.getPhpCsPath();
+
+        if (fs.existsSync(phpCsPath)) {
+            return true;
+        }
+        return false;
+    }
+    public getPhpCbfPath() {
+        const phpCbfDir = this.docRoot + path.sep + '.bin' + path.sep + 'phpcs' + path.sep;
+        const phpCbfPhar = "phpcbf.phar";
+        const phpCbfPath = phpCbfDir + phpCbfPhar;
+        return phpCbfPath;
+    }
+    public isPhpCbfInstalled() {
+        const phpCbfPath = this.getPhpCbfPath();
+        if (fs.existsSync(phpCbfPath)) {
+            return true;
+        }
+        return false;
+    }
     public getPhpcfPath() {
         return this.phpcfPath;
     }
