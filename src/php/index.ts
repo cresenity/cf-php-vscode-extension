@@ -52,7 +52,7 @@ export default class PHP {
             code = code.replace(/\\\\"/g, '\\\\\\\\"');
         }
 
-        var command = this.getCommand() + '"' + code + '"';
+        var command = this.getCommand() + ' "' + code + '"';
 
         return new Promise<string>((resolve, error) => {
             console.log('run command ' + command);

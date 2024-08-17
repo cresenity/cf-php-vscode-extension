@@ -18,7 +18,7 @@ export default class PhpcsfixerCodeActionProvider {
     ): Promise<vscode.CodeAction[]> {
 
         const actions: vscode.CodeAction[] = [];
-        console.log(path.extname(document.fileName));
+        // console.log(path.extname(document.fileName));
         if (path.extname(document.fileName) === '.php') {
             const action = new vscode.CodeAction('php-cs-fixer', vscode.CodeActionKind.Refactor);
             action.command = {
