@@ -108,3 +108,10 @@ Add Route List tree view in sidebar — shows controllers and methods for the ac
 Add keyboard shortcut (Ctrl+Shift+M) to run phpcf model:update on current model file
 Add hover and click-to-definition for permission names (havePermission, checkPermission, etc.) to nav files
 Fix additional TypeScript strict mode errors across codebase
+
+## V1.3.503
+Add diagnostic: warning when permission name not found in nav files
+Add diagnostic: warning when view file not found
+Add diagnostic: warning when controller URI not resolved (skips http/https URLs)
+Add diagnostic: deprecated hint for echo $app->render() — use return $app instead
+Add diagnostic: warning for duplicate permission names across nav files

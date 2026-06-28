@@ -25,6 +25,7 @@ import PHPCF from "./phpcf";
 import modelUpdateShortcut from "./commands/modelUpdateShortcutCommand";
 import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
 import { RouteTreeProvider } from "./providers/routeTreeProvider";
+import { PermissionDiagnosticProvider } from "./providers/permissionDiagnosticProvider";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
@@ -151,6 +152,9 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.window.createTreeView('phpcfRoutes', { treeDataProvider: routeTreeProvider }),
             vscode.commands.registerCommand('phpcf.refreshRoutes', () => routeTreeProvider.refresh())
         );
+
+        const permissionDiagnostic = new PermissionDiagnosticProvider();
+        permissionDiagnostic.activate(context);
     }
 }
 

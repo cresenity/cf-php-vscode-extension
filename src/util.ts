@@ -316,6 +316,60 @@ function searchNavFiles(dir: string, permissionName: string): { filePath: string
     return null;
 }
 
+export function findDuplicatePermissions(document: TextDocument): { name: string; locations: { filePath: string; line: number }[] }[] {
+    const workspaceFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
+    if (!workspaceFolder) {
+        return [];
+    }
+    const appCode = getAppCodeFromDocument(document);
+    if (!appCode) {
+        return [];
+    }
+
+    const navsDir = path.join(workspaceFolder, 'application', appCode, 'default', 'navs');
+    if (!fs.existsSync(navsDir)) {
+        return [];
+    }
+
+    const allPermissions: Map<string, { filePath: string; line: number }[]> = new Map();
+    collectAllPermissions(navsDir, allPermissions);
+
+    const duplicates: { name: string; locations: { filePath: string; line: number }[] }[] = [];
+    allPermissions.forEach((locations, name) => {
+        if (locations.length > 1) {
+            duplicates.push({ name, locations });
+        }
+    });
+
+    return duplicates;
+}
+
+function collectAllPermissions(dir: string, result: Map<string, { filePath: string; line: number }[]>) {
+    if (!fs.existsSync(dir)) {
+        return;
+    }
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            collectAllPermissions(fullPath, result);
+        } else if (entry.name.endsWith('.php')) {
+            const content = fs.readFileSync(fullPath, 'utf-8');
+            const lines = content.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const nameMatch = lines[i].match(/'name'\s*=>\s*['"](.*?)['"]/);
+                if (nameMatch) {
+                    const name = nameMatch[1];
+                    if (!result.has(name)) {
+                        result.set(name, []);
+                    }
+                    result.get(name)!.push({ filePath: fullPath, line: i + 1 });
+                }
+            }
+        }
+    }
+}
+
 export function waitFor(callback: () => boolean): Promise<void> {
     return new Promise((resolve, reject) => {
         const tmp = () => {
