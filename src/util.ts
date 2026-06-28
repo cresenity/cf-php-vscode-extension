@@ -316,6 +316,58 @@ function searchNavFiles(dir: string, permissionName: string): { filePath: string
     return null;
 }
 
+export function resolveThemeAssetPath(fileName: string, type: 'css' | 'js', document: TextDocument): string | null {
+    const wsFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
+    if (!wsFolder) { return null; }
+    const appCode = getAppCodeFromDocument(document);
+    const cleanName = fileName.split('?')[0];
+
+    const dirs = [
+        path.join(wsFolder, 'media', type),
+        path.join(wsFolder, 'system', 'media', type),
+        path.join(wsFolder, 'modules', 'cresenity', 'media', type),
+    ];
+    if (appCode) {
+        dirs.push(path.join(wsFolder, 'application', appCode, 'default', 'media', type));
+    }
+
+    for (const dir of dirs) {
+        const fullPath = path.join(dir, cleanName);
+        if (fs.existsSync(fullPath)) {
+            return fullPath;
+        }
+    }
+    return null;
+}
+
+export function resolveClientModuleDefinition(moduleName: string, document: TextDocument): { filePath: string; line: number } | null {
+    const wsFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
+    if (!wsFolder) { return null; }
+    const appCode = getAppCodeFromDocument(document);
+
+    const files = [
+        path.join(wsFolder, 'system', 'data', 'assets-module.php'),
+        path.join(wsFolder, 'modules', 'cresenity', 'config', 'client_modules.php'),
+    ];
+    if (appCode) {
+        files.push(path.join(wsFolder, 'application', appCode, 'default', 'config', 'client_modules.php'));
+    }
+
+    const keyRegex = new RegExp(`['"]${moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]\\s*=>`);
+    for (const file of files) {
+        if (!fs.existsSync(file)) { continue; }
+        const content = fs.readFileSync(file, 'utf-8');
+        if (content.includes('require') && !content.includes('=>')) { continue; }
+        const lines = content.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            if (keyRegex.test(lines[i])) {
+                return { filePath: file, line: i + 1 };
+            }
+        }
+    }
+    return null;
+}
+
 export function findDuplicatePermissions(document: TextDocument): { name: string; locations: { filePath: string; line: number }[] }[] {
     const workspaceFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
     if (!workspaceFolder) {

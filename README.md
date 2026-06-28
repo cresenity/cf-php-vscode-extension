@@ -115,3 +115,9 @@ Add diagnostic: warning when view file not found
 Add diagnostic: warning when controller URI not resolved (skips http/https URLs)
 Add diagnostic: deprecated hint for echo $app->render() — use return $app instead
 Add diagnostic: warning for duplicate permission names across nav files
+
+## V1.3.504
+Add theme file validation: warning when CSS/JS asset file not found
+Add theme file validation: warning when client_module not found in asset definitions
+Add click-to-file for CSS/JS entries in theme files — opens the resolved asset file
+Add click-to-definition for client_modules entries in theme files — jumps to module definition
