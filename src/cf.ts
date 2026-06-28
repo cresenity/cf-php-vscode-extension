@@ -26,7 +26,7 @@ class CF {
         return this.docRoot!=null;
     }
     public detectCF() {
-        if (vscode.workspace.workspaceFolders.length > 0) {
+        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
             vscode.workspace.workspaceFolders.forEach((element) => {
                 let root = element.uri.fsPath;
                 let cfFile = root + path.sep + "cf";
@@ -43,13 +43,13 @@ class CF {
         if(!fs.existsSync(appRoot)) {
             return null;
         }
-        if(!this.apps[appCode]) {
-            this.apps[appCode] = new CFApp(appCode);
+        if(!this.apps.has(appCode)) {
+            this.apps.set(appCode, new CFApp(appCode));
         }
-        return this.apps[appCode];
+        return this.apps.get(appCode) ?? null;
 
     }
-    public getCFAppFromDocument(document : vscode.TextDocument = null)  : CFApp|null {
+    public getCFAppFromDocument(document?: vscode.TextDocument)  : CFApp|null {
         const appCode = this.getAppCode(document);
         if(appCode) {
             return this.getCFApp(appCode);
@@ -57,27 +57,30 @@ class CF {
         return null;
     }
 
-    public getAppRoot(document : vscode.TextDocument = null) {
+    public getAppRoot(document?: vscode.TextDocument) {
         const appCode = this.getAppCode(document);
         if(appCode) {
             return this.docRoot + path.sep + 'application' + path.sep + appCode;
         }
         return null;
     }
-    public getAppCode(document : vscode.TextDocument = null) {
-        if(document==null) {
-            document = vscode.window.activeTextEditor?.document ?? null;
+    public getAppCode(document?: vscode.TextDocument) {
+        if(!document) {
+            document = vscode.window.activeTextEditor?.document;
         }
         if(document) {
             return this.getAppCodeFromDocument(document);
         }
         return null;
     }
-    public isOnAppDirectory(document : vscode.TextDocument = null) {
+    public isOnAppDirectory(document?: vscode.TextDocument) {
         return this.getAppCode(document) != null;
     }
 
     public getAppCodeFromDocument(document : vscode.TextDocument) {
+        if(!this.docRoot) {
+            return null;
+        }
         let relativePath = path.relative(this.docRoot, document.uri.fsPath);
 
         return this.appCode(relativePath);
@@ -183,7 +186,7 @@ class CF {
         const paths = [];
         const { workspace } = vscode;
 
-        for (const folder of workspace.workspaceFolders) {
+        for (const folder of workspace.workspaceFolders ?? []) {
             paths.push(path.join(folder.uri.fsPath, vendor));
         }
 
@@ -191,19 +194,23 @@ class CF {
             paths.push(path.join(process.env.COMPOSER_HOME, vendor));
         } else {
             if (process.platform === "win32") {
-                paths.push(
-                    path.join(
-                        process.env.USERPROFILE,
-                        "AppData/Roaming/composer",
-                        vendor
-                    )
-                );
+                if (process.env.USERPROFILE) {
+                    paths.push(
+                        path.join(
+                            process.env.USERPROFILE,
+                            "AppData/Roaming/composer",
+                            vendor
+                        )
+                    );
+                }
             } else {
-                paths.push(path.join(process.env.HOME, ".composer", vendor));
+                if (process.env.HOME) {
+                    paths.push(path.join(process.env.HOME, ".composer", vendor));
+                }
             }
         }
 
-        const globalPaths = process.env.PATH.split(path.delimiter);
+        const globalPaths = (process.env.PATH ?? '').split(path.delimiter);
         for (const globalPath of globalPaths) {
             paths.push(globalPath + path.sep + executableName);
         }

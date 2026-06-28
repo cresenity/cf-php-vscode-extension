@@ -97,3 +97,14 @@ Add Refactor Action For phpcf model:update
 ## V1.3.5
 Add Refactor Action For phpcf phpcsfixer
 Extension can be defaultFormatter for php with cf php-cs-fixer configuration
+
+## V1.3.501
+Fix php-cs-fixer on save spamming error when php-cs-fixer is not installed
+Fix controller URI quick jump now jumps to the method line (supports HTTP verb prefixed methods)
+Fix multiple TypeScript strict mode errors (null checks, Map usage, optional parameters)
+
+## V1.3.502
+Add Route List tree view in sidebar — shows controllers and methods for the active app
+Add keyboard shortcut (Ctrl+Shift+M) to run phpcf model:update on current model file
+Add hover and click-to-definition for permission names (havePermission, checkPermission, etc.) to nav files
+Fix additional TypeScript strict mode errors across codebase

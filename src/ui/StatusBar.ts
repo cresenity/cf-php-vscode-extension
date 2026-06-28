@@ -16,20 +16,20 @@ enum Status {
 export default class StatusBar {
     static Status = Status;
 
-    private _name: () => string | string;
+    private _name: (() => string) | string;
     private tooltip: string;
     private statusBarItem: vscode.StatusBarItem;
     private spinnerTimer: any = null;
     private resetTimer: any = null;
     private curFrameOfSpinner: number = 0;
-    private text: string;
+    private text!: string;
     private status: Status = Status.ok;
     private spinner: {
         interval: number;
         frames: string[];
     };
 
-    constructor(name, tooltip, command) {
+    constructor(name: (() => string) | string, tooltip: string, command: string) {
         this._name = name;
         this.tooltip = tooltip;
         this.statusBarItem = vscode.window.createStatusBarItem(
@@ -82,8 +82,8 @@ export default class StatusBar {
         this._render();
     }
 
-    showMsg(text: string, hideAfterTimeout?: number);
-    showMsg(text: string, tooltip: string, hideAfterTimeout?: number);
+    showMsg(text: string, hideAfterTimeout?: number): void;
+    showMsg(text: string, tooltip: string, hideAfterTimeout?: number): void;
     showMsg(
         text: string,
         tooltip?: string | number,

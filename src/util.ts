@@ -46,13 +46,13 @@ function scanPaths(
         );
         if (
             fs.existsSync(defaultTargetFolder) &&
-            fs.statSync(defaultTargetFolder).isDirectory
+            fs.statSync(defaultTargetFolder).isDirectory()
         ) {
             folders.push(defaultTargetFolder);
         }
         if (
             fs.existsSync(targetFolder) &&
-            fs.statSync(targetFolder).isDirectory
+            fs.statSync(targetFolder).isDirectory()
         ) {
             folders.push(targetFolder);
         }
@@ -85,7 +85,11 @@ function scanPaths(
     return folders.reverse();
 }
 function getAppCodeFromDocument(document: TextDocument) {
-    let workspaceFolder = workspace.getWorkspaceFolder(document.uri).uri.fsPath;
+    const wsFolder = workspace.getWorkspaceFolder(document.uri);
+    if (!wsFolder) {
+        return null;
+    }
+    let workspaceFolder = wsFolder.uri.fsPath;
 
     let relativePath = path.relative(workspaceFolder, document.uri.fsPath);
     let relativePathExploded = relativePath.split(path.sep);
@@ -103,8 +107,11 @@ export function getViewFilePath(text: string, document: TextDocument) {
 }
 
 export function getViewFilePaths(text: string, document: TextDocument) {
-    const workspaceFolder = workspace.getWorkspaceFolder(document.uri).uri
-        .fsPath;
+    const wsFolder = workspace.getWorkspaceFolder(document.uri);
+    if (!wsFolder) {
+        return [];
+    }
+    const workspaceFolder = wsFolder.uri.fsPath;
     const appCode = getAppCodeFromDocument(document);
     const config = workspace.getConfiguration("phpcf");
 
@@ -148,9 +155,36 @@ export function getPath(path: string): string {
 
     return "";
 }
+function findMethodLine(filePath: string, methodName: string): number {
+    if (!fs.existsSync(filePath)) {
+        return 0;
+    }
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const lines = content.split('\n');
+    const verbPrefixes = ['', 'get', 'post', 'put', 'patch', 'delete', 'options', 'any'];
+    const candidates = verbPrefixes.map(prefix => {
+        if (prefix === '') {
+            return methodName;
+        }
+        return prefix + methodName.charAt(0).toUpperCase() + methodName.slice(1);
+    });
+
+    for (let i = 0; i < lines.length; i++) {
+        for (const candidate of candidates) {
+            if (lines[i].match(new RegExp(`function\\s+${candidate}\\s*\\(`))) {
+                return i + 1;
+            }
+        }
+    }
+    return 0;
+}
+
 export function getRouteData(text: string, document: TextDocument) {
-    const workspaceFolder = workspace.getWorkspaceFolder(document.uri).uri
-        .fsPath;
+    const wsFolder = workspace.getWorkspaceFolder(document.uri);
+    if (!wsFolder) {
+        return null;
+    }
+    const workspaceFolder = wsFolder.uri.fsPath;
     const appCode = getAppCodeFromDocument(document);
     const config = workspace.getConfiguration("phpcf");
     const paths = scanPaths(workspaceFolder, "controllers", appCode);
@@ -218,15 +252,70 @@ export function getRouteData(text: string, document: TextDocument) {
     }
 
     if (resultControllerPath != null) {
+        let methodName = "index";
+        if (resultMethodSegmentIndex !== null && resultMethodSegmentIndex < segments.length) {
+            methodName = segments[resultMethodSegmentIndex];
+        }
+
+        let lineNumber = findMethodLine(resultControllerPath, methodName);
+        let fileUri = Uri.file(resultControllerPath);
+        if (lineNumber > 0) {
+            fileUri = fileUri.with({ fragment: lineNumber.toString() });
+        }
+
         return {
             path: resultControllerPath,
             dir: resultControllerDir,
             controller: resultControllerClass,
-            fileUri: Uri.file(resultControllerPath),
+            fileUri: fileUri,
         };
     }
     return null;
 }
+export function findPermissionDefinition(permissionName: string, document: TextDocument) {
+    const workspaceFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
+    if (!workspaceFolder) {
+        return null;
+    }
+    const appCode = getAppCodeFromDocument(document);
+    if (!appCode) {
+        return null;
+    }
+
+    const navsDir = path.join(workspaceFolder, 'application', appCode, 'default', 'navs');
+    if (!fs.existsSync(navsDir)) {
+        return null;
+    }
+
+    return searchNavFiles(navsDir, permissionName);
+}
+
+function searchNavFiles(dir: string, permissionName: string): { filePath: string; line: number } | null {
+    if (!fs.existsSync(dir)) {
+        return null;
+    }
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            const result = searchNavFiles(fullPath, permissionName);
+            if (result) {
+                return result;
+            }
+        } else if (entry.name.endsWith('.php')) {
+            const content = fs.readFileSync(fullPath, 'utf-8');
+            const lines = content.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const nameMatch = lines[i].match(/'name'\s*=>\s*['"](.*?)['"]/);
+                if (nameMatch && nameMatch[1] === permissionName) {
+                    return { filePath: fullPath, line: i + 1 };
+                }
+            }
+        }
+    }
+    return null;
+}
+
 export function waitFor(callback: () => boolean): Promise<void> {
     return new Promise((resolve, reject) => {
         const tmp = () => {

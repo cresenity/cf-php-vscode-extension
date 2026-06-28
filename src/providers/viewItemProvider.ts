@@ -60,6 +60,7 @@ export default class ViewItemProvider implements CompletionItemProvider {
 
             return items;
         }
+        return [];
     }
 
 

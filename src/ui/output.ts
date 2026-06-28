@@ -25,7 +25,7 @@ export function toggle() {
     }
 }
 
-export function print(...args) {
+export function print(...args: any[]) {
     const msg = args
         .map((arg) => {
             if (!arg) {

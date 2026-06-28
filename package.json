@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.3.500",
+    "version": "1.3.502",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": {
@@ -17,6 +17,15 @@
         "workspaceContains:cf"
     ],
     "contributes": {
+        "views": {
+            "explorer": [
+                {
+                    "id": "phpcfRoutes",
+                    "name": "CF Routes",
+                    "icon": "images/icon.png"
+                }
+            ]
+        },
         "commands": [
             {
                 "command": "phpcf.createClassFile",
@@ -29,6 +38,32 @@
             {
                 "command": "phpcf.phpcsfixer",
                 "title": "Run phpcf:php-cs-fixer on file"
+            },
+            {
+                "command": "phpcf.modelUpdateShortcut",
+                "title": "Run phpcf model:update on current model file"
+            },
+            {
+                "command": "phpcf.refreshRoutes",
+                "title": "Refresh Routes",
+                "icon": "$(refresh)"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "phpcf.refreshRoutes",
+                    "when": "view == phpcfRoutes",
+                    "group": "navigation"
+                }
+            ]
+        },
+        "keybindings": [
+            {
+                "command": "phpcf.modelUpdateShortcut",
+                "key": "ctrl+shift+m",
+                "mac": "cmd+shift+m",
+                "when": "editorLangId == php"
             }
         ],
         "configuration": {

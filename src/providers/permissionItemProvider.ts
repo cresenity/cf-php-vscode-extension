@@ -4,7 +4,7 @@ import { getPermissions } from "./../php/permission";
 import cf from "../cf";
 
 export default class PermissionItemProvider {
-    private permissions: Array<any> = [];
+    private permissions: Record<string, any[]> = {};
 
     constructor() {
         const appCode = cf.getAppCode();
@@ -50,7 +50,7 @@ export default class PermissionItemProvider {
         return items;
     }
 
-    async syncPermissions(appCode) {
+    async syncPermissions(appCode: string) {
         const permissions = await getPermissions();
         if (!permissions) {
             return;

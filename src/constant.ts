@@ -12,3 +12,5 @@ export const COMMAND_TOGGLE_OUTPUT = 'phpcf.toggleOutput';
 export const COMMAND_CREATE_CLASS_FILE = 'phpcf.createClassFile';
 export const COMMAND_MODEL_UPDATE = 'phpcf.modelUpdate';
 export const COMMAND_PHPCSFIXER = 'phpcf.phpcsfixer';
+export const COMMAND_MODEL_UPDATE_SHORTCUT = 'phpcf.modelUpdateShortcut';
+export const PERMISSION_REGEX = "(?<=havePermission\\(|hasPermission\\(|checkPermission\\(|permission\\()(['\"])[^'\"]*\\1";

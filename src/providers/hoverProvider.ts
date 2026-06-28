@@ -11,7 +11,7 @@ import {
 } from "vscode";
 import * as util from '../util';
 
-import { CONTROLLER_URL_REGEX, VIEW_REGEX } from "../constant";
+import { CONTROLLER_URL_REGEX, VIEW_REGEX, PERMISSION_REGEX } from "../constant";
 
 export default class HoverProvider implements vsHoverProvider {
     provideHover(doc: TextDocument, pos: Position): ProviderResult<Hover> {
@@ -23,7 +23,7 @@ export default class HoverProvider implements vsHoverProvider {
 
             let filePaths = util.getViewFilePaths(doc.getText(linkRange), doc);
             let workspaceFolder = workspace.getWorkspaceFolder(doc.uri);
-            if (filePaths.length > 0) {
+            if (workspaceFolder && filePaths.length > 0) {
                 let text: string = "";
 
                 for (let i in filePaths) {
@@ -44,6 +44,19 @@ export default class HoverProvider implements vsHoverProvider {
                 return new Hover(new MarkdownString(text));
             }
 
+        }
+
+        reg = new RegExp(PERMISSION_REGEX);
+        linkRange = doc.getWordRangeAtPosition(pos, reg);
+        if (linkRange) {
+            const permissionName = doc.getText(linkRange).replace(/['"]/g, '');
+            const definition = util.findPermissionDefinition(permissionName, doc);
+            if (definition) {
+                const fileUri = `${definition.filePath}#${definition.line}`;
+                const relativePath = workspace.asRelativePath(definition.filePath);
+                const text = `**Permission:** \`${permissionName}\`\n\n[${relativePath}:${definition.line}](${fileUri})`;
+                return new Hover(new MarkdownString(text));
+            }
         }
     }
 

@@ -9,7 +9,7 @@ export default class PHPCF {
 
     static running: boolean = false;
 
-    static async run(command: string, document:TextDocument = null): Promise<string> {
+    static async run(command: string, document?: TextDocument): Promise<string> {
         //if (cf.hasAutoload() && cf.hasBootstrapApp()) {
 
         const cwd = cf.getAppRoot(document);

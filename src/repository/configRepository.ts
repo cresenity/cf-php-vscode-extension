@@ -3,7 +3,7 @@ import { getConfigElements } from "./../php/config";
 import cf from "../cf";
 
 class ConfigRepository {
-    private elements: Array<any> = [];
+    private elements: Record<string, any[]> = {};
 
     constructor() {
         const appCode = cf.getAppCode();
@@ -13,7 +13,7 @@ class ConfigRepository {
 
     }
 
-    async get(document:vscode.TextDocument = null) {
+    async get(document?: vscode.TextDocument) {
         const appCode = cf.getAppCode(document);
         if(appCode) {
             if (!this.elements[appCode]) {
@@ -28,7 +28,7 @@ class ConfigRepository {
         return [];
     }
 
-    async syncConfig(appCode) {
+    async syncConfig(appCode: string) {
         await getConfigElements().then((elements) => {
             if (!elements) {
                 return;

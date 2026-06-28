@@ -15,17 +15,17 @@ export class PhpcsfixerFormattingEditProvider implements vscode.DocumentFormatti
         context.subscriptions.push(
             vscode.languages.registerDocumentFormattingEditProvider('php', new PhpcsfixerFormattingEditProvider())
         );
-        PhpcsfixerFormattingEditProvider.runOnSave = vscode.workspace.getConfiguration().get('phpcf.phpcsfixer.runOnSave');
+        PhpcsfixerFormattingEditProvider.runOnSave = vscode.workspace.getConfiguration().get<boolean>('phpcf.phpcsfixer.runOnSave', false);
          // Listener untuk menyimpan dokumen
         vscode.workspace.onDidSaveTextDocument(document => {
-            if (PhpcsfixerFormattingEditProvider.runOnSave && document.languageId === 'php') {
+            if (PhpcsfixerFormattingEditProvider.runOnSave && document.languageId === 'php' && cf.isPhpCsFixerInstalled()) {
                 phpcsfixer(document.uri);
             }
         });
         // Listener untuk perubahan pengaturan
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration('phpcf.phpcsfixer.runOnSave')) {
-                PhpcsfixerFormattingEditProvider.runOnSave = vscode.workspace.getConfiguration().get('phpcf.phpcsfixer.runOnSave');
+                PhpcsfixerFormattingEditProvider.runOnSave = vscode.workspace.getConfiguration().get<boolean>('phpcf.phpcsfixer.runOnSave', false);
             }
         });
 
@@ -37,6 +37,9 @@ export class PhpcsfixerFormattingEditProvider implements vscode.DocumentFormatti
         }
         let originalText = document.getText();
         const tmpPath = this.getTmpPath();
+        if (!tmpPath) {
+            return [];
+        }
         // Jalankan php-cs-fixer
         const fsPath = document.uri.fsPath;
         fs.writeFileSync(tmpPath, originalText);
@@ -50,6 +53,7 @@ export class PhpcsfixerFormattingEditProvider implements vscode.DocumentFormatti
             return [vscode.TextEdit.replace(fullRange, formattedText)];
 
         }
+        return [];
     }
     public getTmpPath() {
         let filePath = path.join(this.getTmpDir(), 'phpcf.php-cs-fixer', 'phpcf.php-cs-fixer-tmp' + Math.random());
@@ -57,7 +61,7 @@ export class PhpcsfixerFormattingEditProvider implements vscode.DocumentFormatti
           fs.mkdirSync(path.dirname(filePath), { recursive: true })
         } catch (err) {
           console.error(err)
-          filePath = null;
+          return null;
         }
         return filePath;
     }

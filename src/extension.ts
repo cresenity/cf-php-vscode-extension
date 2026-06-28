@@ -22,7 +22,9 @@ import ClassNotFoundCodeActionProvider from "./providers/classNotFoundCodeAction
 import ModelUpdateCodeActionProvider from "./providers/modelUpdateCodeActionProvider";
 import PhpcsfixerCodeActionProvider from "./providers/phpcsfixerCodeActionProvider";
 import PHPCF from "./phpcf";
+import modelUpdateShortcut from "./commands/modelUpdateShortcutCommand";
 import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
+import { RouteTreeProvider } from "./providers/routeTreeProvider";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
@@ -39,8 +41,12 @@ export async function activate(context: vscode.ExtensionContext) {
         try {
             initCommands(context);
         } catch (error) {
-            reportError(error, "initCommands");
+            reportError(error instanceof Error ? error : String(error), "initCommands");
         }
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand('phpcf.modelUpdateShortcut', modelUpdateShortcut)
+        );
 
         await config.check();
         let controller = new CFController();
@@ -139,6 +145,12 @@ export async function activate(context: vscode.ExtensionContext) {
         );
 
         PhpcsfixerFormattingEditProvider.activate(context);
+
+        const routeTreeProvider = new RouteTreeProvider();
+        context.subscriptions.push(
+            vscode.window.createTreeView('phpcfRoutes', { treeDataProvider: routeTreeProvider }),
+            vscode.commands.registerCommand('phpcf.refreshRoutes', () => routeTreeProvider.refresh())
+        );
     }
 }
 

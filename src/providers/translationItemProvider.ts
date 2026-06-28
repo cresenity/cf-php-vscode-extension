@@ -5,7 +5,7 @@ import { isNull } from "util";
 import cf from "../cf";
 
 export default class TranslationItemProvider {
-    private translations: Array<any> = [];
+    private translations: Record<string, any[]> = {};
 
     constructor() {
         const appCode = cf.getAppCode();
