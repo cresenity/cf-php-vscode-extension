@@ -121,3 +121,11 @@ Add theme file validation: warning when CSS/JS asset file not found
 Add theme file validation: warning when client_module not found in asset definitions
 Add click-to-file for CSS/JS entries in theme files — opens the resolved asset file
 Add click-to-definition for client_modules entries in theme files — jumps to module definition
+
+## V1.3.505
+Replace tree views with webview panel — Routes and Models as tabs in CF PHP sidebar
+Add Models tab: lists tables from phpcf model:tables, click to open model file
+Add create model action for tables without model — runs phpcf make:model in terminal
+Show phpcf install instructions when phpcf is not installed
+Auto-filter to active app based on open file, no tree collapse on file navigation
+Fix client_module validation false positives (assets-module.php with requirements key)

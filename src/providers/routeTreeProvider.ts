@@ -15,7 +15,6 @@ interface ControllerMethod {
 
 interface ControllerInfo {
     filePath: string;
-    className: string;
     urlPath: string;
     methods: ControllerMethod[];
 }
@@ -23,18 +22,6 @@ interface ControllerInfo {
 export class RouteTreeProvider implements vscode.TreeDataProvider<RouteTreeItem> {
     private _onDidChangeTreeData = new vscode.EventEmitter<RouteTreeItem | undefined>();
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
-
-    private currentAppCode: string | null = null;
-
-    constructor() {
-        vscode.window.onDidChangeActiveTextEditor(() => {
-            const newAppCode = cf.getAppCode();
-            if (newAppCode !== this.currentAppCode) {
-                this.currentAppCode = newAppCode;
-                this._onDidChangeTreeData.fire(undefined);
-            }
-        });
-    }
 
     refresh() {
         this._onDidChangeTreeData.fire(undefined);
@@ -49,14 +36,12 @@ export class RouteTreeProvider implements vscode.TreeDataProvider<RouteTreeItem>
             return [];
         }
 
-        const appCode = cf.getAppCode();
-        if (!appCode) {
-            return [new RouteTreeItem('No active app', vscode.TreeItemCollapsibleState.None, 'info')];
-        }
-        this.currentAppCode = appCode;
-
         if (!element) {
-            return this.getControllerItems(appCode);
+            return this.getAppItems();
+        }
+
+        if (element.contextValue === 'app') {
+            return this.getControllerItems(element.appCode!);
         }
 
         if (element.contextValue === 'controller' && element.controllerInfo) {
@@ -64,17 +49,53 @@ export class RouteTreeProvider implements vscode.TreeDataProvider<RouteTreeItem>
         }
 
         if (element.contextValue === 'folder') {
-            return this.getControllerItemsFromDir(element.dirPath, element.urlPrefix, appCode);
+            return this.getControllerItemsFromDir(element.dirPath!, element.urlPrefix!);
         }
 
         return [];
     }
 
+    private getAppItems(): RouteTreeItem[] {
+        const docRoot = cf.getDocRoot();
+        if (!docRoot) { return []; }
+
+        const appDir = path.join(docRoot, 'application');
+        if (!fs.existsSync(appDir)) { return []; }
+
+        const activeAppCode = cf.getAppCode();
+        const entries = fs.readdirSync(appDir, { withFileTypes: true });
+
+        return entries
+            .filter(entry => {
+                if (!entry.isDirectory()) { return false; }
+                const controllersDir = path.join(appDir, entry.name, 'default', 'controllers');
+                const controllersDir2 = path.join(appDir, entry.name, 'controllers');
+                return fs.existsSync(controllersDir) || fs.existsSync(controllersDir2);
+            })
+            .sort((a, b) => {
+                if (a.name === activeAppCode) { return -1; }
+                if (b.name === activeAppCode) { return 1; }
+                return a.name.localeCompare(b.name);
+            })
+            .map(entry => {
+                const isActive = entry.name === activeAppCode;
+                const item = new RouteTreeItem(
+                    entry.name,
+                    isActive ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.Collapsed,
+                    'app'
+                );
+                item.appCode = entry.name;
+                item.iconPath = new vscode.ThemeIcon(isActive ? 'folder-opened' : 'folder');
+                if (isActive) {
+                    item.description = '(active)';
+                }
+                return item;
+            });
+    }
+
     private getControllerItems(appCode: string): RouteTreeItem[] {
         const docRoot = cf.getDocRoot();
-        if (!docRoot) {
-            return [];
-        }
+        if (!docRoot) { return []; }
 
         const controllersDirs = [
             path.join(docRoot, 'application', appCode, 'default', 'controllers'),
@@ -82,27 +103,17 @@ export class RouteTreeProvider implements vscode.TreeDataProvider<RouteTreeItem>
         ];
 
         const items: RouteTreeItem[] = [];
-        const headerItem = new RouteTreeItem(
-            `App: ${appCode}`,
-            vscode.TreeItemCollapsibleState.None,
-            'appHeader'
-        );
-        headerItem.description = docRoot;
-        items.push(headerItem);
-
         for (const dir of controllersDirs) {
             if (fs.existsSync(dir)) {
-                items.push(...this.getControllerItemsFromDir(dir, '', appCode));
+                items.push(...this.getControllerItemsFromDir(dir, ''));
             }
         }
 
         return items;
     }
 
-    private getControllerItemsFromDir(dir: string, urlPrefix: string, appCode: string): RouteTreeItem[] {
-        if (!fs.existsSync(dir)) {
-            return [];
-        }
+    private getControllerItemsFromDir(dir: string, urlPrefix: string): RouteTreeItem[] {
+        if (!fs.existsSync(dir)) { return []; }
 
         const items: RouteTreeItem[] = [];
         const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -216,7 +227,7 @@ export class RouteTreeProvider implements vscode.TreeDataProvider<RouteTreeItem>
             methods.push({ name: methodName, line: i + 1, verb, urlSegment });
         }
 
-        return { filePath, className: '', urlPath, methods };
+        return { filePath, urlPath, methods };
     }
 }
 
@@ -224,6 +235,7 @@ export class RouteTreeItem extends vscode.TreeItem {
     controllerInfo?: ControllerInfo;
     dirPath?: string;
     urlPrefix?: string;
+    appCode?: string;
 
     constructor(
         label: string,

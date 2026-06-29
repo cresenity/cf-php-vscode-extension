@@ -106,67 +106,73 @@ export default class LinkProvider implements vsDocumentLinkProvider {
     }
 
     private addThemeLinks(doc: TextDocument, documentLinks: DocumentLink[]) {
-        const assetRegex = /['"]([^'"]+\.(?:css|js)(?:\?[^'"]*)?)[']/g;
-        const moduleRegex = /['"]([^'"]+)['"]/g;
-        const lines = doc.getText().split('\n');
+        const text = doc.getText();
+        const lines = text.split('\n');
 
-        let inCss = false;
-        let inJs = false;
-        let inModules = false;
-        let depth = 0;
+        const sections = this.findThemeSections(lines);
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
+        for (const section of sections) {
+            for (let i = section.start; i <= section.end; i++) {
+                const line = lines[i];
 
-            if (line.match(/['"]css['"]\s*=>/)) { inCss = true; inJs = false; inModules = false; depth = 0; }
-            else if (line.match(/['"]js['"]\s*=>/)) { inJs = true; inCss = false; inModules = false; depth = 0; }
-            else if (line.match(/['"]client_modules['"]\s*=>/)) { inModules = true; inCss = false; inJs = false; depth = 0; }
-            else if (line.match(/['"](?:data|scss|client_modules|css|js)['"]\s*=>/) && !inCss && !inJs && !inModules) {
-                continue;
-            }
-
-            for (const ch of line) {
-                if (ch === '[') { depth++; }
-                if (ch === ']') { depth--; }
-            }
-            if (depth <= 0 && (inCss || inJs || inModules)) {
-                inCss = false; inJs = false; inModules = false;
-                continue;
-            }
-
-            if (inCss || inJs) {
-                const type = inCss ? 'css' : 'js';
-                let match: RegExpExecArray | null;
-                const regex = new RegExp(assetRegex.source, 'g');
-                while ((match = regex.exec(line)) !== null) {
-                    const fileName = match[1];
-                    if (inCss && !fileName.includes('.css')) { continue; }
-                    if (inJs && !fileName.includes('.js')) { continue; }
-                    const resolved = util.resolveThemeAssetPath(fileName, type, doc);
-                    if (resolved) {
-                        const startCol = line.indexOf(fileName, match.index);
-                        const start = new Position(i, startCol);
-                        const end = start.translate(0, fileName.length);
-                        documentLinks.push(new DocumentLink(new Range(start, end), Uri.file(resolved)));
+                if (section.type === 'css' || section.type === 'js') {
+                    const assetRegex = /['"]([^'"]+)[']/g;
+                    let match: RegExpExecArray | null;
+                    while ((match = assetRegex.exec(line)) !== null) {
+                        const fileName = match[1];
+                        if (!fileName.includes('.' + section.type)) { continue; }
+                        const resolved = util.resolveThemeAssetPath(fileName, section.type, doc);
+                        if (resolved) {
+                            const startCol = line.indexOf(fileName, match.index);
+                            const start = new Position(i, startCol);
+                            const end = start.translate(0, fileName.length);
+                            documentLinks.push(new DocumentLink(new Range(start, end), Uri.file(resolved)));
+                        }
                     }
-                }
-            }
-
-            if (inModules) {
-                let match: RegExpExecArray | null;
-                const regex = new RegExp(moduleRegex.source, 'g');
-                while ((match = regex.exec(line)) !== null) {
-                    const moduleName = match[1];
-                    const definition = util.resolveClientModuleDefinition(moduleName, doc);
-                    if (definition) {
-                        const startCol = line.indexOf(moduleName, match.index);
-                        const start = new Position(i, startCol);
-                        const end = start.translate(0, moduleName.length);
-                        const fileUri = Uri.file(definition.filePath).with({ fragment: definition.line.toString() });
-                        documentLinks.push(new DocumentLink(new Range(start, end), fileUri));
+                } else if (section.type === 'client_modules') {
+                    const moduleRegex = /['"]([^'"]+)[']/g;
+                    let match: RegExpExecArray | null;
+                    while ((match = moduleRegex.exec(line)) !== null) {
+                        const moduleName = match[1];
+                        if (moduleName === 'client_modules') { continue; }
+                        const definition = util.resolveClientModuleDefinition(moduleName, doc);
+                        if (definition) {
+                            const startCol = line.indexOf(moduleName, match.index);
+                            const start = new Position(i, startCol);
+                            const end = start.translate(0, moduleName.length);
+                            const fileUri = Uri.file(definition.filePath).with({ fragment: definition.line.toString() });
+                            documentLinks.push(new DocumentLink(new Range(start, end), fileUri));
+                        }
                     }
                 }
             }
         }
+    }
+
+    private findThemeSections(lines: string[]): { type: string; start: number; end: number }[] {
+        const sections: { type: string; start: number; end: number }[] = [];
+        const sectionKeys = ['css', 'js', 'client_modules'];
+
+        for (let i = 0; i < lines.length; i++) {
+            for (const key of sectionKeys) {
+                const regex = new RegExp(`['"]${key}['"]\\s*=>\\s*\\[`);
+                if (!regex.test(lines[i])) { continue; }
+
+                let depth = 0;
+                let started = false;
+                for (let j = i; j < lines.length; j++) {
+                    for (const ch of lines[j]) {
+                        if (ch === '[') { depth++; started = true; }
+                        if (ch === ']') { depth--; }
+                    }
+                    if (started && depth <= 0) {
+                        sections.push({ type: key, start: i + 1, end: j - 1 });
+                        break;
+                    }
+                }
+            }
+        }
+
+        return sections;
     }
 }

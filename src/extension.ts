@@ -24,7 +24,7 @@ import PhpcsfixerCodeActionProvider from "./providers/phpcsfixerCodeActionProvid
 import PHPCF from "./phpcf";
 import modelUpdateShortcut from "./commands/modelUpdateShortcutCommand";
 import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
-import { RouteTreeProvider } from "./providers/routeTreeProvider";
+import { CFPanelProvider } from "./providers/cfPanelProvider";
 import { PermissionDiagnosticProvider } from "./providers/permissionDiagnosticProvider";
 
 export const DOCUMENT_SELECTOR = [
@@ -147,10 +147,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
         PhpcsfixerFormattingEditProvider.activate(context);
 
-        const routeTreeProvider = new RouteTreeProvider();
+        const cfPanelProvider = new CFPanelProvider(context.extensionUri);
         context.subscriptions.push(
-            vscode.window.createTreeView('phpcfRoutes', { treeDataProvider: routeTreeProvider }),
-            vscode.commands.registerCommand('phpcf.refreshRoutes', () => routeTreeProvider.refresh())
+            vscode.window.registerWebviewViewProvider('phpcfPanel', cfPanelProvider)
         );
 
         const permissionDiagnostic = new PermissionDiagnosticProvider();

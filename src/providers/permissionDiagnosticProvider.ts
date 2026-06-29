@@ -52,13 +52,12 @@ export class PermissionDiagnosticProvider {
 
         const isThemeFile = this.isThemeFile(document);
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            if (isThemeFile) {
-                this.checkThemeAsset(line, i, document, 'css', diagnostics);
-                this.checkThemeAsset(line, i, document, 'js', diagnostics);
-            }
-            if (!isThemeFile) {
+        if (isThemeFile) {
+            this.checkThemeAssets(lines, document, diagnostics);
+            this.checkThemeClientModules(lines, document, diagnostics);
+        } else {
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
                 this.checkPermissions(line, i, document, diagnostics);
                 this.checkViews(line, i, document, diagnostics);
                 this.checkControllerUri(line, i, document, diagnostics);
@@ -66,9 +65,6 @@ export class PermissionDiagnosticProvider {
             }
         }
 
-        if (isThemeFile) {
-            this.checkThemeClientModules(lines, document, diagnostics);
-        }
         this.checkDuplicatePermissions(document, diagnostics);
 
         this.diagnosticCollection.set(document.uri, diagnostics);
@@ -239,26 +235,31 @@ export class PermissionDiagnosticProvider {
         return false;
     }
 
-    private checkThemeAsset(line: string, lineIndex: number, document: vscode.TextDocument, type: 'css' | 'js', diagnostics: vscode.Diagnostic[]) {
-        const regex = /['"]([^'"]+\.(?:css|js)(?:\?[^'"]*)?)[']/g;
-        let match: RegExpExecArray | null;
-
-        while ((match = regex.exec(line)) !== null) {
-            const fileName = match[1];
-            if (!fileName.endsWith('.' + type) && !fileName.includes('.' + type + '?')) { continue; }
+    private checkThemeAssets(lines: string[], document: vscode.TextDocument, diagnostics: vscode.Diagnostic[]) {
+        for (const type of ['css', 'js'] as const) {
+            const section = this.findArraySection(lines, type);
+            if (!section) { continue; }
 
             const searchPaths = this.getAssetSearchPaths(document, type);
-            if (!this.assetExists(fileName, searchPaths)) {
-                const startCol = line.indexOf(fileName, match.index);
-                const range = new vscode.Range(lineIndex, startCol, lineIndex, startCol + fileName.length);
-                const diagnostic = new vscode.Diagnostic(
-                    range,
-                    `${type.toUpperCase()} file '${fileName.split('?')[0]}' not found`,
-                    vscode.DiagnosticSeverity.Warning
-                );
-                diagnostic.source = 'phpcf';
-                diagnostic.code = `${type}-not-found`;
-                diagnostics.push(diagnostic);
+            for (let i = section.start; i <= section.end; i++) {
+                const regex = /['"]([^'"]+)[']/g;
+                let match: RegExpExecArray | null;
+                while ((match = regex.exec(lines[i])) !== null) {
+                    const fileName = match[1];
+                    if (!fileName.includes('.' + type)) { continue; }
+                    if (!this.assetExists(fileName, searchPaths)) {
+                        const startCol = lines[i].indexOf(fileName, match.index);
+                        const range = new vscode.Range(i, startCol, i, startCol + fileName.length);
+                        const diagnostic = new vscode.Diagnostic(
+                            range,
+                            `${type.toUpperCase()} file '${fileName.split('?')[0]}' not found`,
+                            vscode.DiagnosticSeverity.Warning
+                        );
+                        diagnostic.source = 'phpcf';
+                        diagnostic.code = `${type}-not-found`;
+                        diagnostics.push(diagnostic);
+                    }
+                }
             }
         }
     }
@@ -290,27 +291,20 @@ export class PermissionDiagnosticProvider {
     }
 
     private findArraySection(lines: string[], key: string): { start: number; end: number } | null {
-        let start = -1;
-        let depth = 0;
+        const regex = new RegExp(`['"]${key}['"]\\s*=>\\s*\\[`);
 
         for (let i = 0; i < lines.length; i++) {
-            if (start === -1) {
-                if (lines[i].match(new RegExp(`['"]${key}['"]\\s*=>`))) {
-                    start = i + 1;
-                    depth = 0;
-                    for (let j = lines[i].indexOf('=>') + 2; j < lines[i].length; j++) {
-                        if (lines[i][j] === '[') { depth++; }
-                        if (lines[i][j] === ']') { depth--; }
-                    }
-                    if (depth <= 0 && lines[i].includes('[')) { return { start, end: i }; }
-                }
-            } else {
-                for (const ch of lines[i]) {
-                    if (ch === '[') { depth++; }
+            if (!regex.test(lines[i])) { continue; }
+
+            let depth = 0;
+            let started = false;
+            for (let j = i; j < lines.length; j++) {
+                for (const ch of lines[j]) {
+                    if (ch === '[') { depth++; started = true; }
                     if (ch === ']') { depth--; }
                 }
-                if (depth <= 0) {
-                    return { start, end: i };
+                if (started && depth <= 0) {
+                    return { start: i + 1, end: j - 1 };
                 }
             }
         }
@@ -346,7 +340,7 @@ export class PermissionDiagnosticProvider {
         for (const file of files) {
             if (!fs.existsSync(file)) { continue; }
             const content = fs.readFileSync(file, 'utf-8');
-            if (content.includes('require')) { continue; }
+            if (content.match(/^\s*return\s+require\b/m)) { continue; }
             let match: RegExpExecArray | null;
             while ((match = keyRegex.exec(content)) !== null) {
                 const key = match[1];
