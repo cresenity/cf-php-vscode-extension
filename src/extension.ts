@@ -25,6 +25,7 @@ import PHPCF from "./phpcf";
 import modelUpdateShortcut from "./commands/modelUpdateShortcutCommand";
 import dataDomainCommand from "./commands/dataDomainCommand";
 import resolveUrlCommand from "./commands/resolveUrlCommand";
+import generateIdeHelperCommand from "./commands/generateIdeHelperCommand";
 import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
 import { CFPanelProvider } from "./providers/cfPanelProvider";
 import { PermissionDiagnosticProvider } from "./providers/permissionDiagnosticProvider";
@@ -57,6 +58,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
         context.subscriptions.push(
             vscode.commands.registerCommand('phpcf.resolveUrl', resolveUrlCommand)
+        );
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand('phpcf.generateIdeHelper', generateIdeHelperCommand)
         );
 
         await config.check();

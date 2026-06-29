@@ -13,7 +13,6 @@ import onChangeActiveTextEditor from './event/onChangeActiveTextEditor';
 
 export class CFController {
     private disposable: Disposable;
-    private _item;
 
     constructor() {
         let subscriptions: Disposable[] = [];

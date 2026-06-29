@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.3.506",
+    "version": "1.3.507",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": {
@@ -60,6 +60,10 @@
             {
                 "command": "phpcf.resolveUrl",
                 "title": "CF: Resolve URL to Controller"
+            },
+            {
+                "command": "phpcf.generateIdeHelper",
+                "title": "CF: Generate IDE Helper"
             }
         ],
         "keybindings": [

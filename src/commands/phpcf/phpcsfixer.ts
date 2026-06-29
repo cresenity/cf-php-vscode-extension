@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import PHPCF from "../../phpcf";
 import cf from "../../cf";
 
-function snakeCase(str) {
+function snakeCase(str: string) {
     // Replace all instances of an uppercase letter followed by a lowercase letter with an underscore and the lowercase letter
     return str.replace(/([a-z])([A-Z])/g, '$1_$2')
         // Replace all instances of an uppercase letter that is not preceded by a lowercase letter with an underscore and the lowercase letter
