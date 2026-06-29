@@ -23,6 +23,8 @@ import ModelUpdateCodeActionProvider from "./providers/modelUpdateCodeActionProv
 import PhpcsfixerCodeActionProvider from "./providers/phpcsfixerCodeActionProvider";
 import PHPCF from "./phpcf";
 import modelUpdateShortcut from "./commands/modelUpdateShortcutCommand";
+import dataDomainCommand from "./commands/dataDomainCommand";
+import resolveUrlCommand from "./commands/resolveUrlCommand";
 import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
 import { CFPanelProvider } from "./providers/cfPanelProvider";
 import { PermissionDiagnosticProvider } from "./providers/permissionDiagnosticProvider";
@@ -47,6 +49,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
         context.subscriptions.push(
             vscode.commands.registerCommand('phpcf.modelUpdateShortcut', modelUpdateShortcut)
+        );
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand('phpcf.dataDomain', dataDomainCommand)
+        );
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand('phpcf.resolveUrl', resolveUrlCommand)
         );
 
         await config.check();

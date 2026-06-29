@@ -129,3 +129,8 @@ Add create model action for tables without model — runs phpcf make:model in te
 Show phpcf install instructions when phpcf is not installed
 Auto-filter to active app based on open file, no tree collapse on file navigation
 Fix client_module validation false positives (assets-module.php with requirements key)
+
+## V1.3.506
+Add "Data Domain" context menu on application folders — lists domain files for that app
+Add "CF: Resolve URL to Controller" command — paste a URL to jump to the controller method
+Auto-fills URL from clipboard if available

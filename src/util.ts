@@ -155,7 +155,7 @@ export function getPath(path: string): string {
 
     return "";
 }
-function findMethodLine(filePath: string, methodName: string): number {
+export function findMethodLine(filePath: string, methodName: string): number {
     if (!fs.existsSync(filePath)) {
         return 0;
     }
