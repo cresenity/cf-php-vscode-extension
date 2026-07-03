@@ -12,9 +12,10 @@ import {
 } from "vscode"
 import * as path from 'path';
 import * as util from '../util';
+import { findTranslationDefinition } from '../util';
 import cf from '../cf';
 
-import { CONTROLLER_URL_REGEX, VIEW_REGEX, PERMISSION_REGEX } from "../constant";
+import { CONTROLLER_URL_REGEX, VIEW_REGEX, PERMISSION_REGEX, TRANSLATION_REGEX } from "../constant";
 export default class LinkProvider implements vsDocumentLinkProvider {
     public provideDocumentLinks(doc: TextDocument): ProviderResult<DocumentLink[]> {
         let documentLinks = [];
@@ -94,6 +95,49 @@ export default class LinkProvider implements vsDocumentLinkProvider {
                 permIndex++;
             }
         }
+        {
+            let transReg = new RegExp(TRANSLATION_REGEX, 'g');
+            let transLinesCount = doc.lineCount <= config.maxLineScanningCount ? doc.lineCount : config.maxLineScanningCount;
+            for (let i = 0; i < transLinesCount; i++) {
+                let line = doc.lineAt(i);
+                let result = line.text.match(transReg);
+                if (result != null) {
+                    for (let item of result) {
+                        let transKey = item.replace(/['"]/g, '');
+                        let definition = findTranslationDefinition(transKey, doc);
+                        if (definition != null) {
+                            let start = new Position(line.lineNumber, line.text.indexOf(item) + 1);
+                            let end = start.translate(0, item.length - 2);
+                            let fileUri = Uri.file(definition.filePath).with({ fragment: definition.line.toString() });
+                            documentLinks.push(new DocumentLink(new Range(start, end), fileUri));
+                        }
+                    }
+                }
+            }
+        }
+        {
+            // setLabel/setTitle: only link when $lang param is true (default) or not passed
+            const setLangReg = /->(?:setLabel|setTitle)\s*\(\s*(['"])([^'"]*)\1\s*(?:,\s*(true|false))?\s*\)/g;
+            let linesCount = doc.lineCount <= config.maxLineScanningCount ? doc.lineCount : config.maxLineScanningCount;
+            for (let i = 0; i < linesCount; i++) {
+                const line = doc.lineAt(i);
+                setLangReg.lastIndex = 0;
+                let match: RegExpExecArray | null;
+                while ((match = setLangReg.exec(line.text)) !== null) {
+                    if (match[3] === 'false') { continue; }
+                    const transKey = match[2];
+                    const definition = findTranslationDefinition(transKey, doc);
+                    if (definition != null) {
+                        const keyStart = line.text.indexOf(transKey, match.index);
+                        const start = new Position(i, keyStart);
+                        const end = start.translate(0, transKey.length);
+                        const fileUri = Uri.file(definition.filePath).with({ fragment: definition.line.toString() });
+                        documentLinks.push(new DocumentLink(new Range(start, end), fileUri));
+                    }
+                }
+            }
+        }
+
         const appRoot = cf.getAppRoot(doc);
         if (appRoot) {
             const themesDir = path.join(appRoot, 'default', 'themes');

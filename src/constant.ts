@@ -14,3 +14,4 @@ export const COMMAND_MODEL_UPDATE = 'phpcf.modelUpdate';
 export const COMMAND_PHPCSFIXER = 'phpcf.phpcsfixer';
 export const COMMAND_MODEL_UPDATE_SHORTCUT = 'phpcf.modelUpdateShortcut';
 export const PERMISSION_REGEX = "(?<=havePermission\\(|hasPermission\\(|checkPermission\\(|permission\\()(['\"])[^'\"]*\\1";
+export const TRANSLATION_REGEX = "(?<=c::trans\\(|c::__\\(|@lang\\()(['\"])[^'\"]*\\1";

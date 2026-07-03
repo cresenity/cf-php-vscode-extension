@@ -340,7 +340,74 @@ export function resolveThemeAssetPath(fileName: string, type: 'css' | 'js', docu
     return null;
 }
 
-function findArraySection(lines: string[], key: string): { start: number; end: number } | null {
+export function findTranslationDefinition(transKey: string, document: TextDocument): { filePath: string; line: number } | null {
+    const wsFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
+    if (!wsFolder) { return null; }
+    const appCode = getAppCodeFromDocument(document);
+
+    // 'auth.throttle' → file=auth, key=throttle; 'welcome' → file=core, key=welcome
+    const dotIdx = transKey.indexOf('.');
+    const fileName = dotIdx > 0 ? transKey.substring(0, dotIdx) : 'core';
+    const keyName = dotIdx > 0 ? transKey.substring(dotIdx + 1) : transKey;
+
+    const keyRegex = new RegExp(`['"]${keyName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]\\s*=>`);
+
+    // Priority: application → system (no modules i18n exists in this project)
+    const i18nDirs: string[] = [];
+    if (appCode) {
+        i18nDirs.push(path.join(wsFolder, 'application', appCode, 'default', 'i18n'));
+    }
+    i18nDirs.push(path.join(wsFolder, 'system', 'i18n'));
+
+    for (const i18nDir of i18nDirs) {
+        if (!fs.existsSync(i18nDir)) { continue; }
+        const localeDirs = fs.readdirSync(i18nDir).filter(d => {
+            return fs.statSync(path.join(i18nDir, d)).isDirectory();
+        });
+        for (const locale of localeDirs) {
+            const filePath = path.join(i18nDir, locale, `${fileName}.php`);
+            if (!fs.existsSync(filePath)) { continue; }
+            const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                if (keyRegex.test(lines[i])) {
+                    return { filePath, line: i + 1 };
+                }
+            }
+        }
+    }
+
+    return null;
+}
+
+export function getAppDefaultLocale(document: TextDocument): string | null {
+    const wsFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
+    if (!wsFolder) { return null; }
+    const appCode = getAppCodeFromDocument(document);
+    if (!appCode) { return null; }
+    const appConfigPath = path.join(wsFolder, 'application', appCode, 'default', 'config', 'app.php');
+    if (!fs.existsSync(appConfigPath)) { return null; }
+    const content = fs.readFileSync(appConfigPath, 'utf-8');
+    const match = content.match(/'locale'\s*=>\s*'([^']+)'/);
+    return match ? match[1] : null;
+}
+
+export function translationKeyExistsInLocale(transKey: string, locale: string, appI18nDir: string, systemI18nDir: string): boolean {
+    const dotIdx = transKey.indexOf('.');
+    const fileName = dotIdx > 0 ? transKey.substring(0, dotIdx) : 'core';
+    const keyName = dotIdx > 0 ? transKey.substring(dotIdx + 1) : transKey;
+    const keyRegex = new RegExp(`['"]${keyName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]\\s*=>`);
+
+    for (const i18nDir of [appI18nDir, systemI18nDir]) {
+        if (!i18nDir) { continue; }
+        const filePath = path.join(i18nDir, locale, `${fileName}.php`);
+        if (!fs.existsSync(filePath)) { continue; }
+        const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
+        if (lines.some(l => keyRegex.test(l))) { return true; }
+    }
+    return false;
+}
+
+export function findArraySection(lines: string[], key: string): { start: number; end: number } | null {
     const regex = new RegExp(`['"]${key}['"]\\s*=>\\s*\\[`);
     for (let i = 0; i < lines.length; i++) {
         if (!regex.test(lines[i])) { continue; }

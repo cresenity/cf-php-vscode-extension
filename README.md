@@ -130,6 +130,15 @@ Show phpcf install instructions when phpcf is not installed
 Auto-filter to active app based on open file, no tree collapse on file navigation
 Fix client_module validation false positives (assets-module.php with requirements key)
 
+## V1.3.509
+Add Ctrl+click translation links: c::trans(), c::__(), @lang(), setLabel(), setTitle() — jump to i18n definition (application first, then system)
+setLabel/setTitle links and diagnostics skipped when second param is explicitly false
+Add translation diagnostic: warn when key is missing in non-default locales (only runs if app has 2+ i18n locale dirs; default locale from config/app.php)
+All diagnostics skip PHP-commented lines (// and /* */ blocks)
+Refactor diagnostics into src/diagnostics/ — one file per diagnostic type
+Fix client_module link: parse assets.php within modules section, client_modules.php at top level (assets.php searched first)
+Fix modelUpdate.ts implicit any on str parameter
+
 ## V1.3.508
 Fix Ctrl+Shift+M (model:update) no longer opens a terminal — runs silently via child_process with progress notification
 Fix client_module link resolution: assets.php (modules nested under 'modules' key) searched first, client_modules.php (top-level) searched as fallback — correct structure-aware parsing for each format

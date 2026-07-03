@@ -28,7 +28,7 @@ import resolveUrlCommand from "./commands/resolveUrlCommand";
 import generateIdeHelperCommand from "./commands/generateIdeHelperCommand";
 import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
 import { CFPanelProvider } from "./providers/cfPanelProvider";
-import { PermissionDiagnosticProvider } from "./providers/permissionDiagnosticProvider";
+import { DiagnosticProvider as PermissionDiagnosticProvider } from "./diagnostics";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
