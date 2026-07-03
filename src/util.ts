@@ -340,24 +340,61 @@ export function resolveThemeAssetPath(fileName: string, type: 'css' | 'js', docu
     return null;
 }
 
+function findArraySection(lines: string[], key: string): { start: number; end: number } | null {
+    const regex = new RegExp(`['"]${key}['"]\\s*=>\\s*\\[`);
+    for (let i = 0; i < lines.length; i++) {
+        if (!regex.test(lines[i])) { continue; }
+        let depth = 0;
+        let started = false;
+        for (let j = i; j < lines.length; j++) {
+            for (const ch of lines[j]) {
+                if (ch === '[') { depth++; started = true; }
+                if (ch === ']') { depth--; }
+            }
+            if (started && depth <= 0) {
+                return { start: i + 1, end: j - 1 };
+            }
+        }
+    }
+    return null;
+}
+
 export function resolveClientModuleDefinition(moduleName: string, document: TextDocument): { filePath: string; line: number } | null {
     const wsFolder = workspace.getWorkspaceFolder(document.uri)?.uri.fsPath;
     if (!wsFolder) { return null; }
     const appCode = getAppCodeFromDocument(document);
 
-    const files = [
+    const keyRegex = new RegExp(`['"]${moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]\\s*=>`);
+
+    // Priority 1: assets.php (modules nested under 'modules' key)
+    const assetsFiles: string[] = [];
+    if (appCode) {
+        assetsFiles.push(path.join(wsFolder, 'application', appCode, 'default', 'config', 'assets.php'));
+    }
+    for (const file of assetsFiles) {
+        if (!fs.existsSync(file)) { continue; }
+        const lines = fs.readFileSync(file, 'utf-8').split('\n');
+        const section = findArraySection(lines, 'modules');
+        if (!section) { continue; }
+        for (let i = section.start; i <= section.end; i++) {
+            if (keyRegex.test(lines[i])) {
+                return { filePath: file, line: i + 1 };
+            }
+        }
+    }
+
+    // Priority 2: client_modules.php (modules at top level)
+    const clientModulesFiles: string[] = [
         path.join(wsFolder, 'system', 'data', 'assets-module.php'),
         path.join(wsFolder, 'modules', 'cresenity', 'config', 'client_modules.php'),
     ];
     if (appCode) {
-        files.push(path.join(wsFolder, 'application', appCode, 'default', 'config', 'client_modules.php'));
+        clientModulesFiles.push(path.join(wsFolder, 'application', appCode, 'default', 'config', 'client_modules.php'));
     }
-
-    const keyRegex = new RegExp(`['"]${moduleName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]\\s*=>`);
-    for (const file of files) {
+    for (const file of clientModulesFiles) {
         if (!fs.existsSync(file)) { continue; }
         const content = fs.readFileSync(file, 'utf-8');
-        if (content.includes('require') && !content.includes('=>')) { continue; }
+        if (content.match(/^\s*return\s+require\b/m)) { continue; }
         const lines = content.split('\n');
         for (let i = 0; i < lines.length; i++) {
             if (keyRegex.test(lines[i])) {
@@ -365,6 +402,7 @@ export function resolveClientModuleDefinition(moduleName: string, document: Text
             }
         }
     }
+
     return null;
 }
 

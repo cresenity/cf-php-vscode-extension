@@ -130,6 +130,10 @@ Show phpcf install instructions when phpcf is not installed
 Auto-filter to active app based on open file, no tree collapse on file navigation
 Fix client_module validation false positives (assets-module.php with requirements key)
 
+## V1.3.508
+Fix Ctrl+Shift+M (model:update) no longer opens a terminal — runs silently via child_process with progress notification
+Fix client_module link resolution: assets.php (modules nested under 'modules' key) searched first, client_modules.php (top-level) searched as fallback — correct structure-aware parsing for each format
+
 ## V1.3.507
 Add "CF: Generate IDE Helper" command — generates `_ide_helper.php` with PHPDoc stubs for CF helper classes, core CF class, and major library classes (CApp, CModel, CHTTP, CManager, etc.)
 Fix TypeScript errors: add opn module declaration, type annotation on snakeCase, remove unused field

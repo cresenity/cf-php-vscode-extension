@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import cf from '../cf';
+import PHPCF from '../phpcf';
 
 function snakeCase(str: string) {
     return str.replace(/([a-z])([A-Z])/g, '$1_$2')
@@ -8,7 +9,7 @@ function snakeCase(str: string) {
         .toLowerCase();
 }
 
-export default function modelUpdateShortcut() {
+export default async function modelUpdateShortcut() {
     const document = vscode.window.activeTextEditor?.document;
     if (!document || document.languageId !== 'php') {
         vscode.window.showWarningMessage('No active PHP file');
@@ -32,10 +33,15 @@ export default function modelUpdateShortcut() {
     const fileName = path.basename(fsPath, '.php');
     const table = snakeCase(fileName);
 
-    const terminal = vscode.window.createTerminal({
-        name: `phpcf model:update ${table}`,
-        cwd: appRoot,
-    });
-    terminal.show();
-    terminal.sendText(`phpcf model:update ${table}`);
+    try {
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Running model:update ${table}...`,
+            cancellable: false,
+        }, () => PHPCF.run(`model:update ${table}`, document));
+
+        vscode.window.showInformationMessage(`model:update ${table} completed`);
+    } catch (err) {
+        vscode.window.showErrorMessage(`model:update failed: ${err}`);
+    }
 }
