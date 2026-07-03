@@ -130,6 +130,19 @@ Show phpcf install instructions when phpcf is not installed
 Auto-filter to active app based on open file, no tree collapse on file navigation
 Fix client_module validation false positives (assets-module.php with requirements key)
 
+## V1.3.506
+Add "Data Domain" context menu on application folders — lists domain files for that app
+Add "CF: Resolve URL to Controller" command — paste a URL to jump to the controller method
+Auto-fills URL from clipboard if available
+
+## V1.3.507
+Add "CF: Generate IDE Helper" command — generates `_ide_helper.php` with PHPDoc stubs for CF helper classes, core CF class, and major library classes (CApp, CModel, CHTTP, CManager, etc.)
+Fix TypeScript errors: add opn module declaration, type annotation on snakeCase, remove unused field
+
+## V1.3.508
+Fix Ctrl+Shift+M (model:update) no longer opens a terminal — runs silently via child_process with progress notification
+Fix client_module link resolution: assets.php (modules nested under 'modules' key) searched first, client_modules.php (top-level) searched as fallback — correct structure-aware parsing for each format
+
 ## V1.3.509
 Add Ctrl+click translation links: c::trans(), c::__(), @lang(), setLabel(), setTitle() — jump to i18n definition (application first, then system)
 setLabel/setTitle links and diagnostics skipped when second param is explicitly false
@@ -138,16 +151,3 @@ All diagnostics skip PHP-commented lines (// and /* */ blocks)
 Refactor diagnostics into src/diagnostics/ — one file per diagnostic type
 Fix client_module link: parse assets.php within modules section, client_modules.php at top level (assets.php searched first)
 Fix modelUpdate.ts implicit any on str parameter
-
-## V1.3.508
-Fix Ctrl+Shift+M (model:update) no longer opens a terminal — runs silently via child_process with progress notification
-Fix client_module link resolution: assets.php (modules nested under 'modules' key) searched first, client_modules.php (top-level) searched as fallback — correct structure-aware parsing for each format
-
-## V1.3.507
-Add "CF: Generate IDE Helper" command — generates `_ide_helper.php` with PHPDoc stubs for CF helper classes, core CF class, and major library classes (CApp, CModel, CHTTP, CManager, etc.)
-Fix TypeScript errors: add opn module declaration, type annotation on snakeCase, remove unused field
-
-## V1.3.506
-Add "Data Domain" context menu on application folders — lists domain files for that app
-Add "CF: Resolve URL to Controller" command — paste a URL to jump to the controller method
-Auto-fills URL from clipboard if available
