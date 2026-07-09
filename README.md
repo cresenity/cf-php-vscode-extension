@@ -57,6 +57,11 @@ enable/disable phpstan for phpcf.
 
 # Change Log
 
+## V1.3.510
+Add "CF: Install DevTrack Extension" command and a one-time activation prompt when the DevTrack (Cresenity time tracking) extension isn't installed
+DevTrack isn't published to the Marketplace, so this downloads the latest .vsix from devcloud (phpcf.devtrackBaseUrl setting) and installs it via workbench.extensions.installExtension
+Add phpcf.devtrackBaseUrl setting (default https://cpanel.ittron.co.id)
+
 ## V1.3.509
 Add Ctrl+click translation links: c::trans(), c::__(), @lang(), setLabel(), setTitle() — jump to i18n definition (application first, then system)
 setLabel/setTitle links and diagnostics skipped when second param is explicitly false

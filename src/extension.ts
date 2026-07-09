@@ -29,6 +29,7 @@ import generateIdeHelperCommand from "./commands/generateIdeHelperCommand";
 import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
 import { CFPanelProvider } from "./providers/cfPanelProvider";
 import { DiagnosticProvider as PermissionDiagnosticProvider } from "./diagnostics";
+import { checkDevtrackInstalled, installDevtrack } from "./devtrack/installDevtrack";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
@@ -63,6 +64,12 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(
             vscode.commands.registerCommand('phpcf.generateIdeHelper', generateIdeHelperCommand)
         );
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand('phpcf.installDevtrack', installDevtrack)
+        );
+
+        void checkDevtrackInstalled();
 
         await config.check();
         let controller = new CFController();
