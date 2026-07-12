@@ -25,15 +25,26 @@ class CF {
     public isCF() {
         return this.docRoot!=null;
     }
-    public detectCF() {
-        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-            vscode.workspace.workspaceFolders.forEach((element) => {
-                let root = element.uri.fsPath;
-                let cfFile = root + path.sep + "cf";
-                if (fs.existsSync(cfFile)) {
-                    this.docRoot = root;
+
+    /**
+     * A workspace folder is the CF framework root when its composer.json
+     * declares "name": "cresenity/cf".
+     */
+    private detectCF() {
+        for (const folder of vscode.workspace.workspaceFolders ?? []) {
+            const composerJsonPath = path.join(folder.uri.fsPath, "composer.json");
+            if (!fs.existsSync(composerJsonPath)) {
+                continue;
+            }
+            try {
+                const composerJson = JSON.parse(fs.readFileSync(composerJsonPath, "utf-8"));
+                if (composerJson.name === "cresenity/cf") {
+                    this.docRoot = folder.uri.fsPath;
+                    return;
                 }
-            });
+            } catch (exception) {
+                continue;
+            }
         }
     }
 
@@ -177,18 +188,39 @@ class CF {
         return this.phpcfPath;
     }
     /**
-     * Filesystem method to find phpcf
+     * Check if a candidate path is an executable phpcf binary, and if so remember it.
+     */
+    private tryUsePhpcf(candidatePath: string): boolean {
+        if (!fs.existsSync(candidatePath)) {
+            return false;
+        }
+        try {
+            fs.accessSync(candidatePath, fs.constants.X_OK);
+            this.phpcfPath = candidatePath;
+            return true;
+        } catch (exception) {
+            return false;
+        }
+    }
+
+    /**
+     * Filesystem method to find phpcf. Looks for a project-local vendor/bin/phpcf
+     * first (in each workspace folder), then falls back to a globally installed phpcf.
      */
     private findPhpcf() {
         const executableName =
             "phpcf" + (process.platform === "win32" ? ".bat" : "");
         const vendor = "vendor/bin/" + executableName;
-        const paths = [];
         const { workspace } = vscode;
 
         for (const folder of workspace.workspaceFolders ?? []) {
-            paths.push(path.join(folder.uri.fsPath, vendor));
+            const vendorPath = path.join(folder.uri.fsPath, vendor);
+            if (this.tryUsePhpcf(vendorPath)) {
+                return;
+            }
         }
+
+        const paths = [];
 
         if (process.env.COMPOSER_HOME !== undefined) {
             paths.push(path.join(process.env.COMPOSER_HOME, vendor));
@@ -214,18 +246,10 @@ class CF {
         for (const globalPath of globalPaths) {
             paths.push(globalPath + path.sep + executableName);
         }
-        console.log(paths)
-        for (const path of paths) {
-            if (fs.existsSync(path)) {
-                // Check if we have permission to execute this file
-                try {
 
-                    fs.accessSync(path, fs.constants.X_OK);
-                    this.phpcfPath = path;
-                    break;
-                } catch (exception) {
-                    continue;
-                }
+        for (const candidatePath of paths) {
+            if (this.tryUsePhpcf(candidatePath)) {
+                return;
             }
         }
     }
