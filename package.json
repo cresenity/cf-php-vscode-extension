@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.3.510",
+    "version": "1.3.511",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": {
@@ -10,11 +10,13 @@
         "url": "https://github.com/cresenity/cf-php-vscode-extension"
     },
     "engines": {
-        "vscode": "^1.61.0"
+        "vscode": "^1.64.0"
     },
     "icon": "images/icon.png",
     "activationEvents": [
-        "workspaceContains:cf"
+        "workspaceContains:cf",
+        "onCommand:sftp.config",
+        "workspaceContains:.vscode/sftp.json"
     ],
     "contributes": {
         "viewsContainers": {
@@ -23,6 +25,11 @@
                     "id": "phpcf",
                     "title": "CF PHP",
                     "icon": "images/icon.png"
+                },
+                {
+                    "id": "sftp",
+                    "title": "SFTP",
+                    "icon": "resources/remote-explorer.svg"
                 }
             ]
         },
@@ -33,6 +40,13 @@
                     "type": "webview",
                     "name": "CF PHP",
                     "icon": "images/icon.png"
+                }
+            ],
+            "sftp": [
+                {
+                    "id": "remoteExplorer",
+                    "name": "Explorer",
+                    "when": "sftp.enabled"
                 }
             ]
         },
@@ -68,6 +82,230 @@
             {
                 "command": "phpcf.installDevtrack",
                 "title": "CF: Install DevTrack Extension"
+            },
+            {
+                "command": "sftp.config",
+                "title": "Config",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.setProfile",
+                "title": "Set Profile",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.openConnectInTerminal",
+                "title": "Open SSH in Terminal",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.cancelAllTransfer",
+                "title": "Cancel All Transfers",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.file",
+                "title": "Upload File",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.changedFiles",
+                "title": "Upload Changed Files",
+                "category": "SFTP",
+                "icon": {
+                    "light": "resources/light/upload.svg",
+                    "dark": "resources/dark/upload.svg"
+                }
+            },
+            {
+                "command": "sftp.upload.activeFile",
+                "title": "Upload Active File",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.folder",
+                "title": "Upload Folder",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.activeFolder",
+                "title": "Upload Active Folder",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.project",
+                "title": "Upload Project",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.forceUpload",
+                "title": "Force Upload",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.file.to.allProfiles",
+                "title": "Upload File To All Profiles",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.activeFile.to.allProfiles",
+                "title": "Upload Active File To All Profiles",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.folder.to.allProfiles",
+                "title": "Upload Folder To All Profiles",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.activeFolder.to.allProfiles",
+                "title": "Upload Active Folder To All Profiles",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.upload.project.to.allProfiles",
+                "title": "Upload Project To All Profiles",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.forceUpload.to.allProfiles",
+                "title": "Force Upload To All Profiles",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.download.file",
+                "title": "Download File",
+                "category": "SFTP",
+                "icon": {
+                    "dark": "resources/dark/download-file.svg",
+                    "light": "resources/light/download-file.svg"
+                }
+            },
+            {
+                "command": "sftp.download.activeFile",
+                "title": "Download Active File",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.download.folder",
+                "title": "Download Folder",
+                "category": "SFTP",
+                "icon": {
+                    "dark": "resources/dark/download-folder.svg",
+                    "light": "resources/light/download-folder.svg"
+                }
+            },
+            {
+                "command": "sftp.download.activeFolder",
+                "title": "Download Active Folder",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.download.project",
+                "title": "Download Project",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.forceDownload",
+                "title": "Force Download",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.sync.localToRemote",
+                "title": "Sync Local -> Remote",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.sync.remoteToLocal",
+                "title": "Sync Remote -> Local",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.sync.bothDirections",
+                "title": "Sync Both Directions",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.diff",
+                "title": "Diff with Remote",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.diff.activeFile",
+                "title": "Diff Active File with Remote",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.list",
+                "title": "List",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.listActiveFolder",
+                "title": "List Active Folder",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.listAll",
+                "title": "List All",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.delete.remote",
+                "title": "Delete",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.delete.localAndRemote",
+                "title": "Delete (Local + Remote)",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.create.folder",
+                "title": "Create Folder",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.create.file",
+                "title": "Create File",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.revealInExplorer",
+                "title": "Reveal in Explorer",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.revealInRemoteExplorer",
+                "title": "Reveal in Remote Explorer",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.remoteExplorer.editInLocal",
+                "title": "Edit in Local",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.viewContent",
+                "title": "View Content",
+                "category": "SFTP"
+            },
+            {
+                "command": "sftp.remoteExplorer.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "sftp.remoteExplorer.refreshActiveFile",
+                "title": "Refresh Active Remote File",
+                "category": "SFTP",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
             }
         ],
         "keybindings": [
@@ -76,6 +314,11 @@
                 "key": "ctrl+shift+m",
                 "mac": "cmd+shift+m",
                 "when": "editorLangId == php"
+            },
+            {
+                "command": "sftp.upload.changedFiles",
+                "key": "ctrl+alt+u",
+                "when": "sftp.enabled"
             }
         ],
         "menus": {
@@ -84,109 +327,535 @@
                     "command": "phpcf.dataDomain",
                     "when": "explorerResourceIsFolder && resourcePath =~ /application[/\\\\][^/\\\\]+$/",
                     "group": "navigation"
+                },
+                {
+                    "command": "sftp.revealInRemoteExplorer",
+                    "group": "navigation@20",
+                    "when": "sftp.enabled && !explorerResourceIsRoot"
+                },
+                {
+                    "command": "sftp.diff",
+                    "group": "3_compare",
+                    "when": "sftp.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.sync.localToRemote",
+                    "group": "sftp.sync@1",
+                    "when": "sftp.enabled && explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.sync.remoteToLocal",
+                    "group": "sftp.sync@2",
+                    "when": "sftp.enabled && explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.sync.bothDirections",
+                    "group": "sftp.sync@3",
+                    "when": "sftp.enabled && explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.upload.file",
+                    "group": "sftp.trans@1",
+                    "when": "sftp.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.upload.folder",
+                    "group": "sftp.trans@1",
+                    "alt": "sftp.forceUpload",
+                    "when": "sftp.enabled && explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.upload.file.to.allProfiles",
+                    "group": "sftp.trans@1",
+                    "when": "sftp.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.upload.folder.to.allProfiles",
+                    "group": "sftp.trans@1",
+                    "alt": "sftp.forceUpload.to.allProfiles",
+                    "when": "sftp.enabled && explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.download.file",
+                    "group": "sftp.trans@2",
+                    "when": "sftp.enabled && !explorerResourceIsRoot && !explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.download.folder",
+                    "group": "sftp.trans@2",
+                    "alt": "sftp.forceDownload",
+                    "when": "sftp.enabled && explorerResourceIsFolder"
+                },
+                {
+                    "command": "sftp.delete.localAndRemote",
+                    "group": "sftp.delete@1",
+                    "when": "sftp.enabled && !explorerResourceIsRoot"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "sftp.setProfile",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.openConnectInTerminal",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.cancelAllTransfer",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.upload.activeFile",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.upload.activeFolder",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.upload.project",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.upload.activeFile.to.allProfiles",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.upload.activeFolder.to.allProfiles",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.upload.project.to.allProfiles",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.download.activeFile",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.download.activeFolder",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.download.project",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.sync.localToRemote",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.sync.remoteToLocal",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.sync.bothDirections",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.diff.activeFile",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.list",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.listActiveFolder",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.listAll",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.upload.file",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.upload.changedFiles",
+                    "when": "sftp.enabled"
+                },
+                {
+                    "command": "sftp.upload.folder",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.forceUpload",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.upload.file.to.allProfiles",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.upload.folder.to.allProfiles",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.forceUpload.to.allProfiles",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.download.file",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.download.folder",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.forceDownload",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.diff",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.delete.remote",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.delete.localAndRemote",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.create.folder",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.create.file",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.revealInExplorer",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.revealInRemoteExplorer",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.remoteExplorer.editInLocal",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.viewContent",
+                    "when": "false"
+                },
+                {
+                    "command": "sftp.remoteExplorer.refresh",
+                    "when": "false"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "sftp.upload.file",
+                    "group": "sftp.trans@1",
+                    "when": "sftp.enabled && resourceScheme == file"
+                },
+                {
+                    "command": "sftp.upload.file.to.allProfiles",
+                    "group": "sftp.trans@1",
+                    "when": "sftp.enabled && resourceScheme == file"
+                },
+                {
+                    "command": "sftp.download.file",
+                    "group": "sftp.trans@2",
+                    "when": "sftp.enabled && resourceScheme == file"
+                },
+                {
+                    "command": "sftp.diff",
+                    "group": "3_compare",
+                    "when": "sftp.enabled && resourceScheme == file"
+                },
+                {
+                    "command": "sftp.remoteExplorer.editInLocal",
+                    "group": "2_files",
+                    "when": "sftp.enabled && resourceScheme == remote"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "sftp.remoteExplorer.refreshActiveFile",
+                    "group": "navigation",
+                    "when": "sftp.enabled && resourceScheme == remote"
+                }
+            ],
+            "editor/title/context": [
+                {
+                    "command": "sftp.revealInExplorer",
+                    "group": "2_files",
+                    "when": "sftp.enabled && resourceScheme == remote"
+                },
+                {
+                    "command": "sftp.revealInRemoteExplorer",
+                    "when": "sftp.enabled && resourceScheme == file",
+                    "group": "2_files"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "sftp.remoteExplorer.refresh",
+                    "when": "view == remoteExplorer",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "sftp.openConnectInTerminal",
+                    "group": "navigation",
+                    "when": "view == remoteExplorer && viewItem == root"
+                },
+                {
+                    "command": "sftp.remoteExplorer.editInLocal",
+                    "group": "2_files",
+                    "when": "view == remoteExplorer && viewItem == file && !config.sftp.downloadWhenOpenInRemoteExplorer"
+                },
+                {
+                    "command": "sftp.viewContent",
+                    "group": "2_files",
+                    "when": "view == remoteExplorer && viewItem == file && config.sftp.downloadWhenOpenInRemoteExplorer"
+                },
+                {
+                    "command": "sftp.revealInExplorer",
+                    "group": "2_files",
+                    "when": "view == remoteExplorer && viewItem != root"
+                },
+                {
+                    "command": "sftp.upload.folder",
+                    "group": "3_trans@1",
+                    "alt": "sftp.forceUpload",
+                    "when": "sftp.enabled && viewItem != file"
+                },
+                {
+                    "command": "sftp.upload.file",
+                    "group": "3_trans@1",
+                    "when": "view == remoteExplorer && viewItem != root && viewItem == file"
+                },
+                {
+                    "command": "sftp.upload.folder.to.allProfiles",
+                    "group": "3_trans@1",
+                    "alt": "sftp.forceUpload.to.allProfiles",
+                    "when": "sftp.enabled && viewItem != file"
+                },
+                {
+                    "command": "sftp.upload.file.to.allProfiles",
+                    "group": "3_trans@1",
+                    "when": "view == remoteExplorer && viewItem != root && viewItem == file"
+                },
+                {
+                    "command": "sftp.download.folder",
+                    "group": "3_trans@2",
+                    "alt": "sftp.forceDownload",
+                    "when": "sftp.enabled && viewItem != file"
+                },
+                {
+                    "command": "sftp.download.file",
+                    "group": "3_trans@2",
+                    "when": "view == remoteExplorer && viewItem != root && viewItem == file"
+                },
+                {
+                    "command": "sftp.delete.remote",
+                    "group": "7_modification",
+                    "when": "view == remoteExplorer && viewItem != root"
+                },
+                {
+                    "command": "sftp.create.folder",
+                    "group": "7_modification",
+                    "when": "view == remoteExplorer && viewItem != file"
+                },
+                {
+                    "command": "sftp.create.file",
+                    "group": "7_modification",
+                    "when": "view == remoteExplorer && viewItem != file"
+                },
+                {
+                    "command": "sftp.download.file",
+                    "group": "inline",
+                    "when": "view == remoteExplorer && viewItem == file"
+                },
+                {
+                    "command": "sftp.download.folder",
+                    "group": "inline",
+                    "when": "sftp.enabled && view == remoteExplorer && viewItem == folder"
+                }
+            ],
+            "scm/title": [
+                {
+                    "command": "sftp.upload.changedFiles",
+                    "group": "sftp",
+                    "when": "sftp.enabled && scmProvider == git && !gitFreshRepository"
+                }
+            ],
+            "scm/resourceGroup/context": [
+                {
+                    "command": "sftp.upload.changedFiles",
+                    "group": "inline",
+                    "when": "sftp.enabled && scmProvider == git && scmResourceGroup == workingTree && !gitFreshRepository"
+                },
+                {
+                    "command": "sftp.upload.changedFiles",
+                    "group": "sftp",
+                    "when": "sftp.enabled && scmProvider == git && scmResourceGroup == workingTree && !gitFreshRepository"
+                },
+                {
+                    "command": "sftp.upload.changedFiles",
+                    "group": "inline",
+                    "when": "sftp.enabled && scmProvider == git && scmResourceGroup == index && !gitFreshRepository"
+                },
+                {
+                    "command": "sftp.upload.changedFiles",
+                    "group": "sftp",
+                    "when": "sftp.enabled && scmProvider == git && scmResourceGroup == index && !gitFreshRepository"
                 }
             ]
         },
-        "configuration": {
-            "type": "object",
-            "title": "PHP CF configuration",
-            "properties": {
-                "phpcf.viewQuickJump": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Use 'Ctrl' or 'Alt' + click"
-                },
-                "phpcf.uriControllerQuickJump": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Use 'Ctrl' or 'Alt' + click"
-                },
-                "phpcf.maxLineScanningCount": {
-                    "type": "integer",
-                    "default": 666,
-                    "description": "Maximum number of scanning rows"
-                },
-                "phpcf.viewExtensions": {
-                    "type": "array",
-                    "default": [
-                        ".blade.php",
-                        ".php"
-                    ],
-                    "items": {
-                        "type": "string"
+        "configuration": [
+            {
+                "type": "object",
+                "title": "PHP CF configuration",
+                "properties": {
+                    "phpcf.viewQuickJump": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Use 'Ctrl' or 'Alt' + click"
                     },
-                    "minItems": 1,
-                    "uniqueItems": true,
-                    "description": "Multiple extensions"
-                },
-                "phpcf.phpstan": {
-                    "type": "object",
-                    "default": {
-                        "enabled":true
+                    "phpcf.uriControllerQuickJump": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Use 'Ctrl' or 'Alt' + click"
                     },
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-							"description": "Indicates PHPStan enable or not"
-                        }
+                    "phpcf.maxLineScanningCount": {
+                        "type": "integer",
+                        "default": 666,
+                        "description": "Maximum number of scanning rows"
                     },
-                    "additionalProperties": false,
-                    "description": "Phpstan setting"
-                },
-                "phpcf.phpcsfixer": {
-                    "type": "object",
-                    "default": {
-                        "runOnSave":false
+                    "phpcf.viewExtensions": {
+                        "type": "array",
+                        "default": [
+                            ".blade.php",
+                            ".php"
+                        ],
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1,
+                        "uniqueItems": true,
+                        "description": "Multiple extensions"
                     },
-                    "properties": {
-                        "runOnSave": {
-                            "type": "boolean",
-                            "default": false,
-                            "description": "Run PHP CS Fixer on save"
-                        }
+                    "phpcf.phpstan": {
+                        "type": "object",
+                        "default": {
+                            "enabled": true
+                        },
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean",
+                                "description": "Indicates PHPStan enable or not"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "description": "Phpstan setting"
                     },
-                    "additionalProperties": false,
-                    "description": "Phpcsfixer setting"
-                },
-                "phpcf.devtrackBaseUrl": {
-                    "type": "string",
-                    "default": "https://cpanel.ittron.co.id",
-                    "description": "DevCloud site used to check for and install the DevTrack extension (not published to the Marketplace)"
+                    "phpcf.phpcsfixer": {
+                        "type": "object",
+                        "default": {
+                            "runOnSave": false
+                        },
+                        "properties": {
+                            "runOnSave": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Run PHP CS Fixer on save"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "description": "Phpcsfixer setting"
+                    },
+                    "phpcf.devtrackBaseUrl": {
+                        "type": "string",
+                        "default": "https://cpanel.ittron.co.id",
+                        "description": "DevCloud site used to check for and install the DevTrack extension (not published to the Marketplace)"
+                    }
                 }
-
+            },
+            {
+                "type": "object",
+                "title": "sftp configuration",
+                "properties": {
+                    "sftp.printDebugLog": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "print debug log on sftp output channel.(reload vscode when change this)"
+                    },
+                    "sftp.debug": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "print debug log on sftp output channel.(reload vscode when change this)"
+                    },
+                    "sftp.downloadWhenOpenInRemoteExplorer": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "\"Download\" instead of \"View Content\" when open file in Remote Explorer"
+                    }
+                }
             }
-        }
+        ],
+        "jsonValidation": [
+            {
+                "fileMatch": ".vscode/sftp.json",
+                "url": "./schema/config.schema.json"
+            }
+        ],
+        "resourceLabelFormatters": [
+            {
+                "scheme": "remote",
+                "formatting": {
+                    "label": "${path}",
+                    "separator": "/"
+                }
+            }
+        ]
     },
     "main": "./out/src/extension",
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "node ./node_modules/vscode/bin/test"
+        "compile": "tsc -watch -p ./"
     },
     "devDependencies": {
+        "@types/fs-extra": "^9.0.13",
         "@types/glob": "^7.1.4",
         "@types/lru-cache": "^5.1.1",
         "@types/mocha": "^9.0.0",
         "@types/node": "^16.10.3",
+        "@types/ssh2": "^1.11.6",
+        "@types/vscode": "^1.64.0",
         "eslint": "^8.0.0",
         "mocha": "^9.1.2",
-        "typescript": "^4.4.3",
-        "vscode": "^1.1.37"
+        "typescript": "^4.4.3"
     },
     "dependencies": {
         "php-parser": "^3.0.1",
         "@types/websocket": "^1.0.4",
+        "async": "^3.2.4",
         "fs-extra": "^10.0.0",
         "ftp": "^0.3.10",
         "http-shutdown": "^1.2.2",
+        "ignore": "^5.1.4",
         "ips": "^2.1.3",
         "joi": "^17.4.2",
+        "lodash.debounce": "^4.0.8",
         "lru-cache": "^6.0.0",
         "opn": "^5.4.0",
-        "p-queue": "^7.1.0",
+        "p-queue": "^2.4.2",
         "ssh-config": "^4.0.6",
+        "ssh2": "^1.15.0",
         "tmp": "^0.2.1",
+        "upath": "^2.0.1",
+        "vscode-uri": "^3.0.6",
         "vsls": "^0.3.967",
         "websocket": "^1.0.34"
     }

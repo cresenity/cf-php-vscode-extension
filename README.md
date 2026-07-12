@@ -57,6 +57,17 @@ enable/disable phpstan for phpcf.
 
 # Change Log
 
+## V1.3.511
+SFTP/FTP is now built into this extension (upload, download, sync, Remote Explorer) — no longer depends on the liximomo.sftp / natizyskunk.sftp marketplace extension, which had stopped working on recent VS Code
+Add "Delete (Local + Remote)" command to the Explorer right-click menu — deletes a file/folder both locally and on the active SFTP profile in one step
+Remove automatic rollup build + upload-on-save for application/*/*/js files on save — developers can now use any JS build tool instead of being forced into rollup
+
+**What you need to do after updating:**
+- Disable or uninstall the `liximomo.sftp` / `natizyskunk.sftp` extension if you have it installed, so its commands don't conflict with the ones now built into CF PHP Extension
+- Reload the VS Code window after updating so the bundled SFTP feature activates
+- Your existing `.vscode/sftp.json` needs no changes and will keep working as-is
+- If you relied on the old auto-build-on-save for JS files, you now need to run your JS build yourself (e.g. `npm run dev`/watch) — saving a file no longer triggers it automatically. "Upload on save" for the saved file itself still works if `uploadOnSave` is set in your SFTP profile
+
 ## V1.3.510
 Add "CF: Install DevTrack Extension" command and a one-time activation prompt when the DevTrack (Cresenity time tracking) extension isn't installed
 DevTrack isn't published to the Marketplace, so this downloads the latest .vsix from devcloud (phpcf.devtrackBaseUrl setting) and installs it via workbench.extensions.installExtension

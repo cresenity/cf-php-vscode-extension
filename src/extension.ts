@@ -30,6 +30,7 @@ import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormatti
 import { CFPanelProvider } from "./providers/cfPanelProvider";
 import { DiagnosticProvider as PermissionDiagnosticProvider } from "./diagnostics";
 import { checkDevtrackInstalled, installDevtrack } from "./devtrack/installDevtrack";
+import { activate as activateSftp, deactivate as deactivateSftp } from "./sftp-vendor/extension";
 
 export const DOCUMENT_SELECTOR = [
     { scheme: "file", language: "php" },
@@ -40,6 +41,13 @@ export const DOCUMENT_SELECTOR = [
 
 export const TRIGGER_CHARACTERS = ['"', "'", ">"];
 export async function activate(context: vscode.ExtensionContext) {
+    try {
+        await activateSftp(context);
+    } catch (error) {
+        reportError(error instanceof Error ? error : String(error), "sftp.activate");
+    }
+
+
     //check is cf project
     if (cf.isCF()) {
         //register command
@@ -179,4 +187,6 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 }
 
-export function deactivate() {}
+export function deactivate() {
+    deactivateSftp();
+}
