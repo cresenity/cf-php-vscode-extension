@@ -179,6 +179,28 @@ export function findMethodLine(filePath: string, methodName: string): number {
     return 0;
 }
 
+function getDefaultRouteControllerName(workspaceFolder: string, appCode: string | null): string {
+    const candidates: string[] = [];
+    if (appCode != null) {
+        candidates.push(path.join(workspaceFolder, "application", appCode, "default", "config", "routes.php"));
+        candidates.push(path.join(workspaceFolder, "application", appCode, "config", "routes.php"));
+    }
+    candidates.push(path.join(workspaceFolder, "system", "config", "routes.php"));
+
+    for (const candidate of candidates) {
+        if (!fs.existsSync(candidate)) { continue; }
+        const content = fs.readFileSync(candidate, "utf-8");
+        const match = content.match(/['"]_default['"]\s*=>\s*['"]([^'"]+)['"]/);
+        if (match) {
+            return match[1];
+        }
+    }
+
+    // Matches system/config/routes.php's own fallback ('_default' => 'home')
+    // in case no routes.php could be found or parsed at all.
+    return "home";
+}
+
 export function getRouteData(text: string, document: TextDocument) {
     const wsFolder = workspace.getWorkspaceFolder(document.uri);
     if (!wsFolder) {
@@ -190,6 +212,12 @@ export function getRouteData(text: string, document: TextDocument) {
     const paths = scanPaths(workspaceFolder, "controllers", appCode);
 
     let uri = text.replace(/\"|\'/g, "");
+    uri = uri.replace(/^\/+|\/+$/g, "");
+    if (uri === "") {
+        // CRouting_RouteData falls back to CRouting_Manager's '_default' route
+        // (routes.php) whenever the incoming uri is empty, e.g. c::url('/').
+        uri = getDefaultRouteControllerName(workspaceFolder, appCode);
+    }
 
     let resultController = null;
     let resultControllerDir = null;
