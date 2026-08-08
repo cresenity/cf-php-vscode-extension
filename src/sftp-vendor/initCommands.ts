@@ -32,6 +32,7 @@ import fileCommandRevealInExplorer from './commands/fileCommandRevealInExplorer'
 import fileCommandRevealInRemoteExplorer from './commands/fileCommandRevealInRemoteExplorer';
 import fileCommandSyncBothDirections from './commands/fileCommandSyncBothDirections';
 import fileCommandSyncLocalToRemote from './commands/fileCommandSyncLocalToRemote';
+import fileCommandSyncLocalToRemoteLocalPriority from './commands/fileCommandSyncLocalToRemoteLocalPriority';
 import fileCommandSyncRemoteToLocal from './commands/fileCommandSyncRemoteToLocal';
 import fileCommandUploadActiveFile from './commands/fileCommandUploadActiveFile';
 import fileCommandUploadActiveFolder from './commands/fileCommandUploadActiveFolder';
@@ -83,6 +84,7 @@ const fileCommandModules: Array<[string, any]> = [
   ['fileCommandRevealInRemoteExplorer', fileCommandRevealInRemoteExplorer],
   ['fileCommandSyncBothDirections', fileCommandSyncBothDirections],
   ['fileCommandSyncLocalToRemote', fileCommandSyncLocalToRemote],
+  ['fileCommandSyncLocalToRemoteLocalPriority', fileCommandSyncLocalToRemoteLocalPriority],
   ['fileCommandSyncRemoteToLocal', fileCommandSyncRemoteToLocal],
   ['fileCommandUploadActiveFile', fileCommandUploadActiveFile],
   ['fileCommandUploadActiveFolder', fileCommandUploadActiveFolder],

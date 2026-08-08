@@ -84,6 +84,49 @@ export const sync2Remote = createFileHandler<SyncOption>({
   },
 });
 
+// Same as sync2Remote, but ignores the user's syncOption config and always
+// makes remote match local exactly: uploads everything local (new + changed),
+// and deletes any remote file/folder that doesn't exist locally.
+export const sync2RemoteLocalPriority = createFileHandler<SyncOption>({
+  name: 'sync local ➞ remote (local priority)',
+  async handle(option) {
+    const remoteFs = await this.fileService.getRemoteFileSystem(this.config);
+    const localFs = this.fileService.getLocalFileSystem();
+    const { localFsPath, remoteFsPath } = this.target;
+    const scheduler = this.fileService.createTransferScheduler(this.config.concurrency);
+    option.filePerm = this.config.filePerm;
+    option.dirPerm = this.config.dirPerm;
+    await sync(
+      {
+        srcFsPath: localFsPath,
+        srcFs: localFs,
+        targetFsPath: remoteFsPath,
+        targetFs: remoteFs,
+        transferOption: option,
+        transferDirection: TransferDirection.LOCAL_TO_REMOTE,
+      },
+      t => scheduler.add(t)
+    );
+    await scheduler.run();
+  },
+  transformOption() {
+    const config = this.config;
+    return {
+      perserveTargetMode: config.protocol === 'sftp' && !config.filePerm && !config.dirPerm,
+      useTempFile: config.useTempFile,
+      openSsh: config.openSsh,
+      ignore: config.ignore,
+      delete: true,
+      skipCreate: false,
+      ignoreExisting: false,
+      update: false,
+    };
+  },
+  afterHandle() {
+    refreshRemoteExplorer(this.target, true);
+  },
+});
+
 export const sync2Local = createFileHandler<SyncOption>({
   name: 'sync remote ➞ local',
   async handle(option) {
