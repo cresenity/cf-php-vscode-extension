@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.517
+
+- **New: "CF: Check for DevTrack Update" command.** Installs DevTrack if it's missing, otherwise compares the installed version against the one published on devcloud and offers to update in place. Previously the only way to get a newer DevTrack was "CF: Install DevTrack Extension", which didn't tell you whether an update was actually available.
+
 ## 1.3.516
 
 - **Fix: `c::url('/')` / root links wrongly flagged "Controller not found".** Splitting an empty/root uri produced no real segment to match a controller file against. Now resolves against `routes.php`'s `_default` route (app-level override checked first, then `system/config/routes.php`, falling back to `home`) — the same fallback CF itself uses at request time.

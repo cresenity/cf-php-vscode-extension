@@ -131,3 +131,83 @@ export async function checkDevtrackInstalled(): Promise<void> {
         await installDevtrack();
     }
 }
+
+function getInstalledDevtrackVersion(): string | undefined {
+    return vscode.extensions.getExtension(DEVTRACK_EXTENSION_ID)?.packageJSON.version;
+}
+
+/**
+ * Compares two `x.y.z` version strings numerically, part by part - a plain
+ * string compare would rank "1.9.0" before "1.10.0".
+ */
+function isNewerVersion(latest: string, current: string): boolean {
+    const latestParts = latest.split('.').map(Number);
+    const currentParts = current.split('.').map(Number);
+
+    for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
+        const l = latestParts[i] || 0;
+        const c = currentParts[i] || 0;
+
+        if (l !== c) {
+            return l > c;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * User-triggered check: installs DevTrack if missing, otherwise compares the
+ * installed version against devcloud's published one and offers to update.
+ */
+export async function checkDevtrackUpdate(): Promise<void> {
+    if (!isDevtrackInstalled()) {
+        const choice = await vscode.window.showInformationMessage(
+            'DevTrack (Cresenity time tracking) is not installed. Install it now?',
+            'Install DevTrack',
+            'Not Now'
+        );
+
+        if (choice === 'Install DevTrack') {
+            await installDevtrack();
+        }
+
+        return;
+    }
+
+    const installedVersion = getInstalledDevtrackVersion();
+
+    try {
+        const baseUrl = getDevtrackBaseUrl();
+        const version = await fetchJson<VersionResponse>(`${baseUrl}/devtrack/extension/version`);
+
+        if (version.errCode !== 0 || !version.version) {
+            vscode.window.showErrorMessage(
+                `Could not check DevTrack version: ${version.errMessage || 'no build published yet'}`
+            );
+            return;
+        }
+
+        if (!installedVersion || !isNewerVersion(version.version, installedVersion)) {
+            vscode.window.showInformationMessage(
+                `DevTrack is up to date (v${installedVersion || '?'}).`
+            );
+            return;
+        }
+
+        const choice = await vscode.window.showInformationMessage(
+            `DevTrack update available: v${installedVersion} → v${version.version}. Update now?`,
+            'Update Now',
+            'Not Now'
+        );
+
+        if (choice === 'Update Now') {
+            await installDevtrack();
+        }
+    } catch (error) {
+        logger.error(error instanceof Error ? error : String(error));
+        vscode.window.showErrorMessage(
+            'Failed to check DevTrack version. See the CF PHP output channel for details.'
+        );
+    }
+}

@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.3.516",
+    "version": "1.3.517",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": {
@@ -82,6 +82,10 @@
             {
                 "command": "phpcf.installDevtrack",
                 "title": "CF: Install DevTrack Extension"
+            },
+            {
+                "command": "phpcf.checkDevtrackUpdate",
+                "title": "CF: Check for DevTrack Update"
             },
             {
                 "command": "sftp.config",

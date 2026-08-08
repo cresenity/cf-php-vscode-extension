@@ -29,7 +29,7 @@ import generateIdeHelperCommand from "./commands/generateIdeHelperCommand";
 import { PhpcsfixerFormattingEditProvider } from "./providers/phpcsfixerFormattingEditProvider";
 import { CFPanelProvider } from "./providers/cfPanelProvider";
 import { DiagnosticProvider as PermissionDiagnosticProvider } from "./diagnostics";
-import { checkDevtrackInstalled, installDevtrack } from "./devtrack/installDevtrack";
+import { checkDevtrackInstalled, checkDevtrackUpdate, installDevtrack } from "./devtrack/installDevtrack";
 import { activate as activateSftp, deactivate as deactivateSftp } from "./sftp-vendor/extension";
 
 export const DOCUMENT_SELECTOR = [
@@ -75,6 +75,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
         context.subscriptions.push(
             vscode.commands.registerCommand('phpcf.installDevtrack', installDevtrack)
+        );
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand('phpcf.checkDevtrackUpdate', checkDevtrackUpdate)
         );
 
         void checkDevtrackInstalled();
