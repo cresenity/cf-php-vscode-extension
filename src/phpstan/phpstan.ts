@@ -57,11 +57,14 @@ class Phpstan {
      * @param updatedDocument The document to re-scan
      */
     public async updateDocument(updatedDocument: TextDocument) {
-        if (!cf.isPhpcfInstalled()) {
-            this.hideStatusBar();
-            return;
-        }
-        if (!cf.isPhpstanEnabled()) {
+        if (!cf.isPhpcfInstalled() || !cf.isPhpstanEnabled()) {
+            // phpstan is off entirely - none of its previously reported
+            // diagnostics are still valid anywhere in the workspace, and no
+            // later scan will run to clear them (every call bails out here),
+            // so they'd otherwise sit stale forever.
+            this._errors = {};
+            this._documents = {};
+            this._diagnosticCollection.clear();
             this.hideStatusBar();
             return;
         }
@@ -75,6 +78,11 @@ class Phpstan {
 
 
         if (appRoot == null) {
+            // Out of phpstan's scope (not under application/<app>) - only this
+            // document's own diagnostics are stale, other files' stay valid.
+            delete this._errors[updatedDocument.fileName];
+            delete this._documents[updatedDocument.fileName];
+            this._diagnosticCollection.delete(updatedDocument.uri);
             this.hideStatusBar();
             return;
         }
