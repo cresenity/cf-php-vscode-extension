@@ -120,6 +120,10 @@ class CF {
         const config = vscode.workspace.getConfiguration('phpcf');
         return this.isPhpStanInstalled() && config.phpstan.enabled;
     }
+    public isPhpcsEnabled() : boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return this.isPhpCsInstalled() && config.phpcs.enabled;
+    }
     public isPhpStanInstalledOnAppCode(appCode:string): boolean {
         const phpstanDir = this.docRoot + path.sep + 'application' + path.sep + appCode + path.sep;
         const phpstanConfig = "phpstan.neon";

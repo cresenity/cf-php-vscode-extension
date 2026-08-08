@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.3.517",
+    "version": "1.3.518",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": {
@@ -777,6 +777,20 @@
                         },
                         "additionalProperties": false,
                         "description": "Phpstan setting"
+                    },
+                    "phpcf.phpcs": {
+                        "type": "object",
+                        "default": {
+                            "enabled": true
+                        },
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean",
+                                "description": "Indicates PHP CodeSniffer (phpcs) enable or not"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "description": "Phpcs setting"
                     },
                     "phpcf.phpcsfixer": {
                         "type": "object",

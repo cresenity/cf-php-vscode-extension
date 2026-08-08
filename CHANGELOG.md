@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.518
+
+- **PHP CodeSniffer (phpcs) is now built in**, the same way SFTP and PHPStan already are — no more separate `ikappas.phpcs` Marketplace extension (broken on recent VS Code, like the old SFTP one was). Runs `phpcf phpcs <file> --format=json` on open/save/switch and reports violations as diagnostics, following the exact pattern `phpstan.ts` already used. New `phpcf.phpcs.enabled` setting (default `true`). Also fixes `phpcf phpcs`'s `--format` option, which the framework command declared but never actually passed through to the real `phpcs` binary — it now forwards as `--report=<value>` (default changed from the nonexistent `table` report to phpcs' real default, `full`, so existing manual CLI usage is unaffected).
+
 ## 1.3.517
 
 - **New: "CF: Check for DevTrack Update" command.** Installs DevTrack if it's missing, otherwise compares the installed version against the one published on devcloud and offers to update in place. Previously the only way to get a newer DevTrack was "CF: Install DevTrack Extension", which didn't tell you whether an update was actually available.

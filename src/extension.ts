@@ -13,6 +13,7 @@ import * as websocket from "./websocket";
 import * as config from "./config";
 import cf from "./cf";
 import phpstan from "./phpstan/phpstan";
+import phpcs from "./phpcs/phpcs";
 import { CFController } from "./controller";
 import ConfigItemProvider from "./providers/configItemProvider";
 import TranslationItemProvider from "./providers/translationItemProvider";
@@ -101,6 +102,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const isPhpstanEnabled = cf.isPhpstanEnabled();
         infoItems.push("phpstan " + (cf.isPhpStanInstalled() ? "✅" : "⛔"));
+
+        const isPhpcsEnabled = cf.isPhpcsEnabled();
+        infoItems.push("phpcs " + (cf.isPhpCsInstalled() ? "✅" : "⛔"));
         showInformationMessage(title, ...infoItems);
 
         let hover = vscode.languages.registerHoverProvider(
@@ -117,6 +121,10 @@ export async function activate(context: vscode.ExtensionContext) {
         if (isPhpstanEnabled) {
             context.subscriptions.push(phpstan);
             context.subscriptions.push(phpstan.diagnosticCollection);
+        }
+        if (isPhpcsEnabled) {
+            context.subscriptions.push(phpcs);
+            context.subscriptions.push(phpcs.diagnosticCollection);
         }
 
         context.subscriptions.push(
