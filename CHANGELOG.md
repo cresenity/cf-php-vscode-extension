@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.523
+
+- **The redundant-extension notice can now fix your settings, not just uninstall.** For the two that register as formatters (`junstyle.php-cs-fixer`, `shufo.vscode-blade-formatter`) the button reads "Uninstall & sesuaikan setelan": it uninstalls, then repoints `[php]`/`[blade]` `editor.defaultFormatter` at `cresenity.php-cf` and offers a window reload. Only a `defaultFormatter` that actually names the removed extension is touched.
+- **New check for a `defaultFormatter` left pointing at an extension that is no longer installed.** Uninstalling an extension does not clean up settings that name it, and a dangling `[php].editor.defaultFormatter` makes Format Document stop working with no error at all — this now offers to repoint it. It runs whether or not the old extension is still present, which the redundant-extension list alone could never catch.
+- Redundant extensions are matched case-insensitively, and uninstall/search now use the installed extension's own id. Marketplace ids keep their publisher's casing (`Natizyskunk.sftp`), so an exact-match lookup would have silently detected nothing.
+- `sftp.*` settings are deliberately never cleaned up: this extension uses the same prefix, so removing them would delete settings that are still in use.
+
 ## 1.3.522
 
 - `liximomo.sftp` and `natizyskunk.sftp` are now reported as redundant too — SFTP/FTP has been built in since 1.3.511, and the startup notice never mentioned them.

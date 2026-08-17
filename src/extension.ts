@@ -7,7 +7,11 @@ import { checkNewAnnouncement } from "./announcement";
 import app from "./app";
 import { reportError } from "./helper";
 import { showInformationMessage } from "./host";
-import { checkRedundantExtension, installedRedundantExtension } from "./redundantExtension";
+import {
+    checkRedundantExtension,
+    checkStaleFormatterSetting,
+    installedRedundantExtension,
+} from "./redundantExtension";
 import { ensureToolOnActivate } from "./toolInstaller";
 import { BladeFormattingEditProvider } from "./blade/bladeFormatter";
 import { BladeDirectiveCompletionProvider } from "./blade/directiveCompletionProvider";
@@ -118,6 +122,7 @@ export async function activate(context: vscode.ExtensionContext) {
         showInformationMessage(title, ...infoItems);
 
         checkRedundantExtension(context.globalState);
+        checkStaleFormatterSetting();
         ensureToolOnActivate();
         BladeFormattingEditProvider.activate(context);
         BladeDirectiveCompletionProvider.activate(context);
