@@ -7,6 +7,8 @@ import { checkNewAnnouncement } from "./announcement";
 import app from "./app";
 import { reportError } from "./helper";
 import { showInformationMessage } from "./host";
+import { checkRedundantExtension, installedRedundantExtension } from "./redundantExtension";
+import { ensureToolOnActivate } from "./toolInstaller";
 import logger from "./logger";
 import onDocumentSaved from "./event/onDocumentSaved";
 import * as websocket from "./websocket";
@@ -105,7 +107,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
         const isPhpcsEnabled = cf.isPhpcsEnabled();
         infoItems.push("phpcs " + (cf.isPhpCsInstalled() ? "✅" : "⛔"));
+        infoItems.push("php-cs-fixer " + (cf.isPhpCsFixerInstalled() ? "✅" : "⛔"));
+
+        const redundant = installedRedundantExtension();
+        if (redundant.length > 0) {
+            infoItems.push("ekstensi mubazir: " + redundant.join(", "));
+        }
         showInformationMessage(title, ...infoItems);
+
+        checkRedundantExtension(context.globalState);
+        ensureToolOnActivate();
 
         let hover = vscode.languages.registerHoverProvider(
             ["php", "blade"],

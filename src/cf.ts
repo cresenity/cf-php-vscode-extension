@@ -2,6 +2,32 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import CFApp from "./cfapp";
+
+/**
+ * Glob gaya VS Code menjadi RegExp.
+ *
+ * Hanya pola yang dipakai setelan ini yang perlu didukung: dua bintang untuk
+ * lintas-direktori, satu bintang untuk dalam satu segmen. Tidak perlu
+ * kebergantungan baru hanya untuk itu.
+ */
+function globToRegExp(pattern: string): RegExp {
+    const anyDirectory = "\u0001";
+    const anyCharacter = "\u0002";
+
+    const body = pattern
+        .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+        .replace(/\*\*\//g, anyDirectory)
+        .replace(/\*\*/g, anyCharacter)
+        .replace(/\*/g, "[^/]*")
+        .replace(/\?/g, "[^/]")
+        .split(anyDirectory)
+        .join("(?:[^/]*\\/)*")
+        .split(anyCharacter)
+        .join(".*");
+
+    return new RegExp("^" + body + "$");
+}
+
 class CF {
     private phpcfPath: string | null = null;
     private docRoot:string|null = null;
@@ -123,6 +149,84 @@ class CF {
     public isPhpcsEnabled() : boolean {
         const config = vscode.workspace.getConfiguration('phpcf');
         return this.isPhpCsInstalled() && config.phpcs.enabled;
+    }
+    public isPhpcsfixerEnabled() : boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return this.isPhpCsFixerInstalled() && config.phpcsfixer.enabled;
+    }
+    public isPhpcsfixerRunOnSave() : boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return this.isPhpcsfixerEnabled() && config.phpcsfixer.runOnSave;
+    }
+    public isPhpcsfixerDocumentFormattingProvider() : boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return config.phpcsfixer.documentFormattingProvider !== false;
+    }
+    public isPhpcsShowSources() : boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return config.phpcs.showSources !== false;
+    }
+    /**
+     * Berkas yang dilewati alat, menurut pola glob di setelan.
+     *
+     * Dicocokkan terhadap seluruh lintasan berkas, jadi pola yang dipakai
+     * ekstensi lain (`**\/vendor/**`) tetap berlaku apa adanya.
+     */
+    public isPathIgnored(filePath: string, patterns: string[]): boolean {
+        const normalized = filePath.split(path.sep).join("/");
+
+        return patterns.some((pattern) => globToRegExp(pattern).test(normalized));
+    }
+    public isPhpcsIgnored(filePath: string): boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return this.isPathIgnored(filePath, config.phpcs.ignorePatterns || []);
+    }
+    public isPhpcsfixerExcluded(filePath: string): boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return this.isPathIgnored(filePath, config.phpcsfixer.exclude || []);
+    }
+    /**
+     * Berkas konfigurasi sebuah alat untuk dokumen tertentu.
+     *
+     * "auto" berarti punya aplikasi dulu, baru punya CF - urutan yang sama
+     * dipakai phpcf sendiri lewat CQC, sehingga hasil format dari editor dan
+     * dari terminal tetap sama. Nilai lain diperlakukan sebagai nama berkas
+     * (dicari di app lalu di docroot) atau sebagai lintasan mutlak.
+     */
+    public resolveToolConfigPath(fileName: string, document?: vscode.TextDocument): string | null {
+        if (path.isAbsolute(fileName)) {
+            return fs.existsSync(fileName) ? fileName : null;
+        }
+
+        const candidates: string[] = [];
+        const appRoot = this.getAppRoot(document);
+        if (appRoot) {
+            candidates.push(appRoot + path.sep + fileName);
+        }
+        candidates.push(this.docRoot + path.sep + fileName);
+
+        for (const candidate of candidates) {
+            if (fs.existsSync(candidate)) {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+    public getPhpcsfixerConfigPath(document?: vscode.TextDocument): string | null {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        const setting = config.phpcsfixer.config || "auto";
+
+        return this.resolveToolConfigPath(
+            setting === "auto" ? ".php-cs-fixer.dist.php" : setting,
+            document
+        );
+    }
+    public getPhpcsConfigPath(document?: vscode.TextDocument): string | null {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        const setting = config.phpcs.config || "auto";
+
+        return this.resolveToolConfigPath(setting === "auto" ? "phpcs.xml" : setting, document);
     }
     public isPhpStanInstalledOnAppCode(appCode:string): boolean {
         const phpstanDir = this.docRoot + path.sep + 'application' + path.sep + appCode + path.sep;

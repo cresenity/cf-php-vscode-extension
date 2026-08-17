@@ -12,27 +12,41 @@ const execAsync = promisify(exec);
 export class PhpcsfixerFormattingEditProvider implements vscode.DocumentFormattingEditProvider {
     static runOnSave = false;
     public static async activate(context: vscode.ExtensionContext) {
-        context.subscriptions.push(
-            vscode.languages.registerDocumentFormattingEditProvider('php', new PhpcsfixerFormattingEditProvider())
-        );
-        PhpcsfixerFormattingEditProvider.runOnSave = vscode.workspace.getConfiguration().get<boolean>('phpcf.phpcsfixer.runOnSave', false);
-         // Listener untuk menyimpan dokumen
+        // Formatter hanya didaftarkan bila diminta - sekali terdaftar, ia ikut
+        // dalam pilihan "Format Document" dan tidak bisa dicabut lagi.
+        if (cf.isPhpcsfixerDocumentFormattingProvider()) {
+            context.subscriptions.push(
+                vscode.languages.registerDocumentFormattingEditProvider('php', new PhpcsfixerFormattingEditProvider())
+            );
+        }
+        // Dibaca lewat cf, bukan getConfiguration().get('phpcf.phpcsfixer.runOnSave'):
+        // setelannya berupa objek `phpcf.phpcsfixer`, dan jalur bertitik ke
+        // dalamnya tidak mengambil nilai bawaan yang dideklarasikan package.json -
+        // jadi bawaannya selalu terbaca sebagai argumen kedua, bukan `true`.
+        PhpcsfixerFormattingEditProvider.runOnSave = cf.isPhpcsfixerRunOnSave();
+        // Listener untuk menyimpan dokumen
         vscode.workspace.onDidSaveTextDocument(document => {
-            if (PhpcsfixerFormattingEditProvider.runOnSave && document.languageId === 'php' && cf.isPhpCsFixerInstalled()) {
+            if (PhpcsfixerFormattingEditProvider.runOnSave
+                && document.languageId === 'php'
+                && !cf.isPhpcsfixerExcluded(document.uri.fsPath)
+            ) {
                 phpcsfixer(document.uri);
             }
         });
         // Listener untuk perubahan pengaturan
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('phpcf.phpcsfixer.runOnSave')) {
-                PhpcsfixerFormattingEditProvider.runOnSave = vscode.workspace.getConfiguration().get<boolean>('phpcf.phpcsfixer.runOnSave', false);
+            if (e.affectsConfiguration('phpcf.phpcsfixer')) {
+                PhpcsfixerFormattingEditProvider.runOnSave = cf.isPhpcsfixerRunOnSave();
             }
         });
 
     }
     public async provideDocumentFormattingEdits(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
         if (!cf.isPhpCsFixerInstalled()) {
-            vscode.window.showErrorMessage('php-cs-fixer is not installed, please install with "phpcf phpcs:install" command!');
+            vscode.window.showErrorMessage('php-cs-fixer is not installed, please install with "phpcf php-cs-fixer:install" command!');
+            return [];
+        }
+        if (cf.isPhpcsfixerExcluded(document.uri.fsPath)) {
             return [];
         }
         let originalText = document.getText();
@@ -43,8 +57,12 @@ export class PhpcsfixerFormattingEditProvider implements vscode.DocumentFormatti
         // Jalankan php-cs-fixer
         const fsPath = document.uri.fsPath;
         fs.writeFileSync(tmpPath, originalText);
-        const formattedText = await PHPCF.run('php-cs-fixer:format ' + tmpPath);
-        console.log('aaaa',fsPath, formattedText);
+        // Config ditentukan dari dokumen aslinya - berkas sementara ini berada
+        // di direktori sementara, di luar aplikasi mana pun, sehingga phpcf
+        // sendiri tidak dapat menyimpulkan config aplikasi darinya.
+        const configPath = cf.getPhpcsfixerConfigPath(document);
+        const configArg = configPath ? ' --config=' + configPath : '';
+        const formattedText = await PHPCF.run('php-cs-fixer:format ' + tmpPath + configArg);
         if(formattedText) {
             // Replace entire document with formatted text
             const firstLine = document.lineAt(0);

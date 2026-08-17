@@ -78,6 +78,15 @@ class Phpcs {
             return;
         }
 
+        // Diagnostik yang tertinggal dari sebelum berkasnya masuk daftar abaikan
+        // akan menetap selamanya kalau hanya di-return.
+        if (cf.isPhpcsIgnored(updatedDocument.fileName)) {
+            this._diagnosticCollection.delete(updatedDocument.uri);
+            delete this._diagnostics[updatedDocument.fileName];
+            this.hideStatusBar();
+            return;
+        }
+
         if (this._current[updatedDocument.fileName] !== undefined) {
             this._current[updatedDocument.fileName].kill();
             delete this._current[updatedDocument.fileName];
@@ -115,9 +124,23 @@ class Phpcs {
             });
 
             this._numQueued--;
+
+            const args = ["phpcs", filePath, "--format=json", "--no-progress"];
+
+            // Dokumen aslinya yang menentukan ruleset, bukan salinan sementara
+            // yang dibuat untuk berkas belum tersimpan - salinan itu ada di
+            // direktori sementara, di luar aplikasi mana pun.
+            const standard = cf.getPhpcsConfigPath(updatedDocument);
+            if (standard) {
+                args.push("--standard=" + standard);
+            }
+            if (cf.isPhpcsShowSources()) {
+                args.push("--show-sources");
+            }
+
             this._current[updatedDocument.fileName] = child_process.spawn(
                 cf.getPhpcfPath(),
-                ["phpcs", filePath, "--format=json", "--no-progress"],
+                args,
                 {}
             );
 

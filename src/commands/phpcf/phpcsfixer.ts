@@ -23,8 +23,15 @@ export default function phpcsfixer(uri?: vscode.Uri) {
     }
     const fsPath = uri.fsPath;
     if(!cf.isPhpCsFixerInstalled()) {
-        vscode.window.showErrorMessage('php-cs-fixer is not installed, please install with "phpcf phpcs:install" command!');
+        vscode.window.showErrorMessage('php-cs-fixer is not installed, please install with "phpcf php-cs-fixer:install" command!');
         return;
     }
-    PHPCF.run('php-cs-fixer ' + fsPath);
+    if (cf.isPhpcsfixerExcluded(fsPath)) {
+        return;
+    }
+
+    const document = vscode.workspace.textDocuments.find((item) => item.uri.fsPath === fsPath);
+    const configPath = cf.getPhpcsfixerConfigPath(document);
+
+    PHPCF.run('php-cs-fixer ' + fsPath + (configPath ? ' --config=' + configPath : ''));
 }

@@ -781,12 +781,42 @@
                     "phpcf.phpcs": {
                         "type": "object",
                         "default": {
-                            "enabled": true
+                            "enabled": true,
+                            "showSources": true,
+                            "ignorePatterns": [
+                                "**/.vscode/**",
+                                "**/node_modules/**",
+                                "**/vendor/**"
+                            ],
+                            "config": "auto"
                         },
                         "properties": {
                             "enabled": {
                                 "type": "boolean",
+                                "default": true,
                                 "description": "Indicates PHP CodeSniffer (phpcs) enable or not"
+                            },
+                            "showSources": {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Cantumkan nama sniff pada tiap diagnostik"
+                            },
+                            "ignorePatterns": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "default": [
+                                    "**/.vscode/**",
+                                    "**/node_modules/**",
+                                    "**/vendor/**"
+                                ],
+                                "description": "Berkas yang tidak diperiksa phpcs"
+                            },
+                            "config": {
+                                "type": "string",
+                                "default": "auto",
+                                "description": "Berkas konfigurasi. \"auto\" memakai punya aplikasi bila ada, jika tidak punya CF (phpcs.xml)"
                             }
                         },
                         "additionalProperties": false,
@@ -795,13 +825,40 @@
                     "phpcf.phpcsfixer": {
                         "type": "object",
                         "default": {
-                            "runOnSave": false
+                            "enabled": true,
+                            "runOnSave": true,
+                            "documentFormattingProvider": true,
+                            "exclude": [],
+                            "config": "auto"
                         },
                         "properties": {
                             "runOnSave": {
                                 "type": "boolean",
-                                "default": false,
-                                "description": "Run PHP CS Fixer on save"
+                                "default": true,
+                                "description": "Jalankan php-cs-fixer tiap berkas PHP disimpan"
+                            },
+                            "enabled": {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Aktifkan integrasi php-cs-fixer bawaan phpcf"
+                            },
+                            "documentFormattingProvider": {
+                                "type": "boolean",
+                                "default": true,
+                                "description": "Daftarkan php-cs-fixer sebagai formatter berkas PHP"
+                            },
+                            "exclude": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "default": [],
+                                "description": "Berkas yang tidak diformat php-cs-fixer"
+                            },
+                            "config": {
+                                "type": "string",
+                                "default": "auto",
+                                "description": "Berkas konfigurasi. \"auto\" memakai punya aplikasi bila ada, jika tidak punya CF (.php-cs-fixer.dist.php)"
                             }
                         },
                         "additionalProperties": false,
