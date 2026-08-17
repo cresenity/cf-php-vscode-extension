@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.526
+
+- Republish of 1.3.525. That version was uploaded during a Marketplace outage on 2026-08-17: the upload landed (later publishes rejected it as "already exists") but it never passed validation, so the Marketplace kept serving 1.3.518 and nobody could install it. No code differs between the two — see 1.3.525 below for what actually changed.
+
 ## 1.3.525
 
 - README documents the Blade support and, for the first time, the redundant-extension notice — which extensions are replaced, what "Uninstall & Fix Settings" does, and the startup check for a `defaultFormatter` pointing at something no longer installed. SFTP was never mentioned there either, despite being built in since 1.3.511.
