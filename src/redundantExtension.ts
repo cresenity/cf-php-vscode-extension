@@ -141,7 +141,7 @@ async function uninstallAndMigrate(item: Redundant, installed: vscode.Extension<
 
     const changed = await migrateFormatterSetting(item);
 
-    const reload = "Muat Ulang Jendela";
+    const reload = "Reload Window";
     const message = changed.length
         ? `${item.name} dicabut. Formatter untuk ${changed
               .map((languageId) => "[" + languageId + "]")
@@ -158,7 +158,7 @@ async function uninstallAndMigrate(item: Redundant, installed: vscode.Extension<
  * Memberi tahu sekali per ekstensi, lalu diam.
  *
  * Pemberitahuan yang muncul tiap kali VS Code dibuka akan diabaikan orang -
- * jadi pilihan "Jangan ingatkan lagi" disimpan permanen di globalState.
+ * jadi pilihan "Don't show again" disimpan permanen di globalState.
  */
 export function checkRedundantExtension(state: vscode.Memento) {
     const dismissed = state.get<string[]>(DISMISS_KEY, []);
@@ -172,9 +172,9 @@ export function checkRedundantExtension(state: vscode.Memento) {
             continue;
         }
 
-        const uninstall = item.formatterFor ? "Uninstall & sesuaikan setelan" : "Uninstall";
-        const showIt = "Lihat Ekstensi";
-        const never = "Jangan ingatkan lagi";
+        const uninstall = item.formatterFor ? "Uninstall & Fix Settings" : "Uninstall";
+        const showIt = "Show Extension";
+        const never = "Don't Show Again";
 
         vscode.window
             .showInformationMessage(
@@ -225,12 +225,12 @@ export async function checkStaleFormatterSetting() {
                 continue;
             }
 
-            const fix = "Alihkan ke phpcf";
+            const fix = "Switch to phpcf";
             const choice = await vscode.window.showWarningMessage(
                 `Formatter [${languageId}] menunjuk "${current}", yang tidak terpasang - `
                     + "Format Document tidak akan bekerja.",
                 fix,
-                "Biarkan"
+                "Keep"
             );
 
             if (choice !== fix) {

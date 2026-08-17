@@ -67,11 +67,11 @@ export async function ensureTool(key: string, askFirst: boolean = false): Promis
     }
 
     if (askFirst) {
-        const install = "Pasang sekarang";
+        const install = "Install Now";
         const choice = await vscode.window.showWarningMessage(
             `${tool.label} belum terpasang. Pasang lewat "phpcf ${tool.command}"?`,
             install,
-            "Nanti"
+            "Later"
         );
         if (choice !== install) {
             return false;

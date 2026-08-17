@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.524
+
+- Notification buttons are in English ("Uninstall & Fix Settings", "Show Extension", "Don't Show Again", "Reload Window", "Install Now"). The dismissal state is keyed by extension id, not by the button label, so nothing you already dismissed comes back.
+
 ## 1.3.523
 
 - **The redundant-extension notice can now fix your settings, not just uninstall.** For the two that register as formatters (`junstyle.php-cs-fixer`, `shufo.vscode-blade-formatter`) the button reads "Uninstall & sesuaikan setelan": it uninstalls, then repoints `[php]`/`[blade]` `editor.defaultFormatter` at `cresenity.php-cf` and offers a window reload. Only a `defaultFormatter` that actually names the removed extension is touched.
