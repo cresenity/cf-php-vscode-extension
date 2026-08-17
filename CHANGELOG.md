@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.521
+
+- **CF directives are now highlighted as Blade keywords**, not just completed. The grammar gave `@section` the `keyword.blade` scope but let `@CAppContent` fall through to the generic `@word` rule, so CF's own directives were a different colour from Laravel's. Both directive lists in `syntaxes/blade.tmLanguage.json` now carry them — the argument-taking ones (`@CApp`, `@CAppElement`, `@CAppStartReact`, `@block`, `@template`, `@entangle`, …) and the bare ones (`@CAppContent`, `@CAppPushScript`, `@CAppEndPushScript`, `@googlefonts`, `@this`, …).
+- The copied Blade grammar and snippets are now maintained here rather than mirrored from `onecentlin.laravel-blade`; see `NOTICE.md`. Do not overwrite them from a newer upstream release — the CF directives would be lost.
+
 ## 1.3.520
 
 - **Blade is now built in.** `onecentlin.laravel-blade` and `shufo.vscode-blade-formatter` are both redundant and the extension says so on startup. The Blade language id, its grammar and its snippets are copied from `onecentlin.laravel-blade` (MIT, see `NOTICE.md`) because they are data files with no package to depend on; formatting instead calls the `blade-formatter` npm library directly — the same engine the shufo extension wraps, so it keeps updating through npm rather than being frozen in a copy.

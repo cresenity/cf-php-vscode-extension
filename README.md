@@ -128,7 +128,10 @@ directly, the same engine the shufo extension wraps.
 CF's own directives (`@CAppContent`, `@CAppElement`, `@CAppPushScript`, …) are
 offered as completions after typing `@`, taken from what the framework actually
 registers in `CApp_Concern_BootstrapTrait`, `CTemplate` and `CManager`. Paired
-directives insert their closing half.
+directives insert their closing half. They are highlighted as Blade keywords too
+— the grammar here is maintained as our own, not mirrored from upstream, so CF
+directives sit in its known-directive lists instead of falling through to the
+generic `@word` rule.
 
 ### Set it as the Blade formatter
 

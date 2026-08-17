@@ -7,6 +7,12 @@ are taken from [vscode-blade](https://github.com/onecentlin/laravel-blade-snippe
 (`onecentlin.laravel-blade` 1.38.0), so this extension defines the Blade language
 itself instead of depending on a second extension to do it.
 
+**These files are modified and maintained here.** They are not kept in sync with
+upstream: `syntaxes/blade.tmLanguage.json` has CF's own directives added to its
+known-directive lists, so `@CAppContent` and friends are highlighted as Blade
+keywords rather than falling through to the generic `@word` rule. Edit them in
+place; do not overwrite them from a newer `onecentlin.laravel-blade`.
+
 ```
 The MIT License (MIT)
 
