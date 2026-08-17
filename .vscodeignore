@@ -10,3 +10,13 @@ vsc-extension-quickstart.md
 .history
 jsconfig.json
 .eslintrc.json
+
+# Sisa kompilasi addon native (ssh2). Keluaran antara node-gyp, tidak dipakai
+# saat berjalan - berkas objek, Makefile, dan berkas kebergantungannya.
+node_modules/**/build/Release/obj.target/**
+node_modules/**/build/Release/.deps/**
+node_modules/**/build/Makefile
+node_modules/**/build/*.mk
+node_modules/**/build/config.gypi
+node_modules/**/build/binding.Makefile
+node_modules/**/*.o
