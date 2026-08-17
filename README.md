@@ -118,6 +118,51 @@ This replaces the `ikappas.phpcs` extension, which can be uninstalled.
   otherwise CF's, following the same rule as `phpcsfixer.config`.
 - `ignorePatterns` — files that are never checked.
 
+## Blade
+
+The Blade language, its syntax highlighting, and its snippets are built into this
+extension — `onecentlin.laravel-blade` and `shufo.vscode-blade-formatter` are both
+redundant and can be uninstalled. Formatting uses the `blade-formatter` library
+directly, the same engine the shufo extension wraps.
+
+CF's own directives (`@CAppContent`, `@CAppElement`, `@CAppPushScript`, …) are
+offered as completions after typing `@`, taken from what the framework actually
+registers in `CApp_Concern_BootstrapTrait`, `CTemplate` and `CManager`. Paired
+directives insert their closing half.
+
+### Set it as the Blade formatter
+
+```json
+{
+    "[blade]": {
+        "editor.defaultFormatter": "cresenity.php-cf"
+    }
+}
+```
+
+### Settings
+
+```json
+"phpcf.blade": {
+    "enabled": true,
+    "runOnSave": true,
+    "indentSize": 4,
+    "wrapLineLength": 120,
+    "wrapAttributes": "auto",
+    "sortHtmlAttributes": "none",
+    "sortTailwindcssClasses": false,
+    "noMultipleEmptyLines": false,
+    "exclude": []
+}
+```
+
+- `enabled` — read at startup only, so reload the window after changing it.
+- `runOnSave` — format every Blade file when it is saved.
+- `exclude` — glob patterns that are never formatted.
+
+The remaining options are passed straight to `blade-formatter` and keep its own
+names and defaults.
+
 # Change Log
 
 ## V1.3.511

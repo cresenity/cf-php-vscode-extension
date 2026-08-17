@@ -25,6 +25,16 @@ const REDUNDANT: Redundant[] = [
         name: "phpcs",
         reason: "phpcf sudah menampilkan diagnostik phpcs sendiri.",
     },
+    {
+        id: "shufo.vscode-blade-formatter",
+        name: "Laravel Blade Formatter",
+        reason: "phpcf memanggil pustaka blade-formatter yang sama secara langsung.",
+    },
+    {
+        id: "onecentlin.laravel-blade",
+        name: "Laravel Blade Snippets",
+        reason: "phpcf sudah membawa bahasa, grammar, dan snippet Blade-nya sendiri.",
+    },
 ];
 
 const DISMISS_KEY = "phpcf.redundantExtension.dismissed";

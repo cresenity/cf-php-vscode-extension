@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.520
+
+- **Blade is now built in.** `onecentlin.laravel-blade` and `shufo.vscode-blade-formatter` are both redundant and the extension says so on startup. The Blade language id, its grammar and its snippets are copied from `onecentlin.laravel-blade` (MIT, see `NOTICE.md`) because they are data files with no package to depend on; formatting instead calls the `blade-formatter` npm library directly — the same engine the shufo extension wraps, so it keeps updating through npm rather than being frozen in a copy.
+- Declaring the Blade language ourselves also removes a silent dependency: the formatter only runs on language id `blade`, which until now existed solely because a third-party extension happened to be installed. Without it `.blade.php` is plain PHP and nothing would have run.
+- **CF directives are offered as completions after `@`** in Blade files — `@CAppContent`, `@CAppElement`, `@CAppPushScript` and the rest, built from what the framework actually registers in `CApp_Concern_BootstrapTrait`, `CTemplate` and `CManager`. Paired directives insert their closing half. `@unless`/`@else`/`@end` are deliberately absent: they are composed from other names at runtime, so there is no fixed name to offer.
+- New `phpcf.blade` settings: `enabled`, `runOnSave` (both `true`), `exclude`, plus `blade-formatter`'s own options under their upstream names and defaults.
+
 ## 1.3.519
 
 - **php-cs-fixer is now built in**, the same way phpcs was in 1.3.518 — `junstyle.php-cs-fixer` is no longer needed and the extension says so on startup (once, then it stays quiet). Leaving both installed is not merely redundant: two extensions registering as PHP formatters make VS Code ask which to use on every Format Document, and both run on save. Point `"[php]": {"editor.defaultFormatter": "cresenity.php-cf"}` at this extension when you uninstall the old one.

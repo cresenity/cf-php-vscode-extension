@@ -9,6 +9,8 @@ import { reportError } from "./helper";
 import { showInformationMessage } from "./host";
 import { checkRedundantExtension, installedRedundantExtension } from "./redundantExtension";
 import { ensureToolOnActivate } from "./toolInstaller";
+import { BladeFormattingEditProvider } from "./blade/bladeFormatter";
+import { BladeDirectiveCompletionProvider } from "./blade/directiveCompletionProvider";
 import logger from "./logger";
 import onDocumentSaved from "./event/onDocumentSaved";
 import * as websocket from "./websocket";
@@ -117,6 +119,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
         checkRedundantExtension(context.globalState);
         ensureToolOnActivate();
+        BladeFormattingEditProvider.activate(context);
+        BladeDirectiveCompletionProvider.activate(context);
 
         let hover = vscode.languages.registerHoverProvider(
             ["php", "blade"],

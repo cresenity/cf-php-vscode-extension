@@ -222,6 +222,37 @@ class CF {
             document
         );
     }
+    public isBladeFormatterEnabled(): boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return config.blade.enabled !== false;
+    }
+    public isBladeFormatterRunOnSave(): boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return this.isBladeFormatterEnabled() && config.blade.runOnSave !== false;
+    }
+    public isBladeFormatterExcluded(filePath: string): boolean {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        return this.isPathIgnored(filePath, config.blade.exclude || []);
+    }
+    /**
+     * Opsi untuk pustaka blade-formatter.
+     *
+     * Namanya mengikuti pustakanya, bukan setelan ini, supaya penambahan opsi
+     * baru di hulu tidak perlu dipetakan satu per satu.
+     */
+    public getBladeFormatterOptions(): { [key: string]: any } {
+        const config = vscode.workspace.getConfiguration('phpcf');
+        const blade = config.blade || {};
+
+        return {
+            indentSize: blade.indentSize ?? 4,
+            wrapLineLength: blade.wrapLineLength ?? 120,
+            wrapAttributes: blade.wrapAttributes ?? "auto",
+            sortTailwindcssClasses: blade.sortTailwindcssClasses ?? false,
+            sortHtmlAttributes: blade.sortHtmlAttributes ?? "none",
+            noMultipleEmptyLines: blade.noMultipleEmptyLines ?? false,
+        };
+    }
     public getPhpcsConfigPath(document?: vscode.TextDocument): string | null {
         const config = vscode.workspace.getConfiguration('phpcf');
         const setting = config.phpcs.config || "auto";
