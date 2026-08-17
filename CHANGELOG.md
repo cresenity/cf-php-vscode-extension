@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.522
+
+- `liximomo.sftp` and `natizyskunk.sftp` are now reported as redundant too — SFTP/FTP has been built in since 1.3.511, and the startup notice never mentioned them.
+
 ## 1.3.521
 
 - **CF directives are now highlighted as Blade keywords**, not just completed. The grammar gave `@section` the `keyword.blade` scope but let `@CAppContent` fall through to the generic `@word` rule, so CF's own directives were a different colour from Laravel's. Both directive lists in `syntaxes/blade.tmLanguage.json` now carry them — the argument-taking ones (`@CApp`, `@CAppElement`, `@CAppStartReact`, `@block`, `@template`, `@entangle`, …) and the bare ones (`@CAppContent`, `@CAppPushScript`, `@CAppEndPushScript`, `@googlefonts`, `@this`, …).

@@ -3,10 +3,12 @@ import * as vscode from "vscode";
 /**
  * Ekstensi yang fungsinya sudah disertakan phpcf.
  *
- * Membiarkan keduanya terpasang bukan sekadar mubazir: dua ekstensi yang
- * sama-sama mendaftar sebagai formatter PHP membuat VS Code menanyakan mana
- * yang dipakai tiap kali Format Document ditekan, dan dua-duanya berjalan saat
- * simpan - berkasnya diformat dua kali dengan aturan yang bisa berbeda.
+ * Membiarkannya terpasang bukan sekadar mubazir. Dua ekstensi yang sama-sama
+ * mendaftar sebagai formatter membuat VS Code menanyakan mana yang dipakai tiap
+ * kali Format Document ditekan, dan dua-duanya berjalan saat simpan. Yang
+ * mendaftarkan snippet yang sama membuat tiap snippet muncul dua kali. Yang
+ * mendaftarkan grammar dengan scopeName yang sama hanya menyisakan satu
+ * pemenang, dan bukan yang ini yang tentu menang.
  */
 interface Redundant {
     id: string;
@@ -34,6 +36,16 @@ const REDUNDANT: Redundant[] = [
         id: "onecentlin.laravel-blade",
         name: "Laravel Blade Snippets",
         reason: "phpcf sudah membawa bahasa, grammar, dan snippet Blade-nya sendiri.",
+    },
+    {
+        id: "liximomo.sftp",
+        name: "SFTP",
+        reason: "phpcf sudah menyertakan SFTP/FTP sendiri sejak 1.3.511.",
+    },
+    {
+        id: "natizyskunk.sftp",
+        name: "SFTP",
+        reason: "phpcf sudah menyertakan SFTP/FTP sendiri sejak 1.3.511.",
     },
 ];
 
