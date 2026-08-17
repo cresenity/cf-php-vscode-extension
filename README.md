@@ -1,6 +1,31 @@
 # php-cf-vscode-extension
 VSCode extension for PHP Cresenity Framework
 
+## Extensions this replaces
+
+These are all built in, so the separate Marketplace extension is no longer needed:
+
+| Replaced | Built-in equivalent |
+| --- | --- |
+| `junstyle.php-cs-fixer` | php-cs-fixer, including format on save |
+| `ikappas.phpcs` | phpcs diagnostics |
+| `shufo.vscode-blade-formatter` | Blade formatting, calling the same `blade-formatter` library |
+| `onecentlin.laravel-blade` | Blade language, grammar and snippets |
+| `liximomo.sftp` / `Natizyskunk.sftp` | SFTP/FTP, since 1.3.511 |
+
+When one of them is installed, a notice offers to remove it. For the two that
+register as formatters it reads **Uninstall & Fix Settings**: it uninstalls, then
+repoints `[php]`/`[blade]` `editor.defaultFormatter` at `cresenity.php-cf` and
+offers a window reload. Only a `defaultFormatter` that actually names the removed
+extension is touched, and `sftp.*` settings are never cleaned up — this extension
+uses that same prefix.
+
+**Don't Show Again** silences a notice permanently, per extension.
+
+Separately, a `defaultFormatter` left pointing at an extension that is no longer
+installed is detected on startup and can be repointed. That state gives no error
+of its own: Format Document simply stops working.
+
 # Settings
 
 ## maxLineScanningCount
@@ -167,6 +192,10 @@ The remaining options are passed straight to `blade-formatter` and keep its own
 names and defaults.
 
 # Change Log
+
+Releases from 1.3.511 onward are in [CHANGELOG.md](CHANGELOG.md). The entries
+below are the older history, kept here because they predate that file.
+
 
 ## V1.3.511
 SFTP/FTP is now built into this extension (upload, download, sync, Remote Explorer) — no longer depends on the liximomo.sftp / natizyskunk.sftp marketplace extension, which had stopped working on recent VS Code

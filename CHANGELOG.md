@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.525
+
+- README documents the Blade support and, for the first time, the redundant-extension notice — which extensions are replaced, what "Uninstall & Fix Settings" does, and the startup check for a `defaultFormatter` pointing at something no longer installed. SFTP was never mentioned there either, despite being built in since 1.3.511.
+- README's own Change Log now points at `CHANGELOG.md` for 1.3.511 onward; the older entries stay because they predate that file.
+- Add `DEVELOPER.md`: no bundler so `node_modules` ships in the `.vsix`, object-shaped settings that make dotted-path reads miss their declared defaults, the Blade grammar being maintained here rather than mirrored, and phar versions living in the framework rather than in this repo.
+
 ## 1.3.524
 
 - Notification buttons are in English ("Uninstall & Fix Settings", "Show Extension", "Don't Show Again", "Reload Window", "Install Now"). The dismissal state is keyed by extension id, not by the button label, so nothing you already dismissed comes back.
