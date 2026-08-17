@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.519
+
+- **php-cs-fixer is now built in**, the same way phpcs was in 1.3.518 — `junstyle.php-cs-fixer` is no longer needed and the extension says so on startup (once, then it stays quiet). Leaving both installed is not merely redundant: two extensions registering as PHP formatters make VS Code ask which to use on every Format Document, and both run on save. Point `"[php]": {"editor.defaultFormatter": "cresenity.php-cf"}` at this extension when you uninstall the old one.
+- Defaults now match a working `junstyle.php-cs-fixer` setup instead of being off: `runOnSave` and `documentFormattingProvider` are `true`, phpcs reports `showSources`, and `**/.vscode/**`, `**/node_modules/**`, `**/vendor/**` are ignored. `allowRisky` has no equivalent because CF's `.php-cs-fixer.dist.php` already sets `setRiskyAllowed(true)`; `autoFixByBracket`/`autoFixBySemicolon` are not implemented.
+- New `config` setting for both tools, default `"auto"`: the application's own `.php-cs-fixer.dist.php`/`phpcs.xml` when it exists, otherwise CF's. This could not be left to phpcf — its own choice depends on the working directory, and formatting copies the file to a temp directory first, outside every application. Needs CF with `phpcs --standard` and `php-cs-fixer --config` (framework 1.9).
+- The phar is installed from `phpcf php-cs-fixer:install` when missing — automatically, since formatting on save is on by default and would otherwise do nothing silently. phpcs asks first. Framework 1.9 also fixes those install commands keeping an unsupported phar forever: they checked the file existed, never its version, so a php-cs-fixer that refuses PHP 8.2 survived every reinstall.
+
 ## 1.3.518
 
 - **PHP CodeSniffer (phpcs) is now built in**, the same way SFTP and PHPStan already are — no more separate `ikappas.phpcs` Marketplace extension (broken on recent VS Code, like the old SFTP one was). Runs `phpcf phpcs <file> --format=json` on open/save/switch and reports violations as diagnostics, following the exact pattern `phpstan.ts` already used. New `phpcf.phpcs.enabled` setting (default `true`). Also fixes `phpcf phpcs`'s `--format` option, which the framework command declared but never actually passed through to the real `phpcs` binary — it now forwards as `--report=<value>` (default changed from the nonexistent `table` report to phpcs' real default, `full`, so existing manual CLI usage is unaffected).

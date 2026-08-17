@@ -39,7 +39,17 @@ enable/disable phpstan for phpcf.
 }
 ```
 
-## php php-cs-fixer default formatter
+## php-cs-fixer
+
+php-cs-fixer is built into this extension. The phar comes from
+`phpcf php-cs-fixer:install`, which the extension runs by itself on activation
+when it is missing — formatting on save is on by default, and without the phar
+that setting would silently do nothing. Every CF project on the machine then
+uses the same phar, so the editor and `phpcf php-cs-fixer` in a terminal produce
+identical output.
+
+### Set it as the PHP formatter
+
 ```json
 {
     "[php]": {
@@ -48,12 +58,65 @@ enable/disable phpstan for phpcf.
 }
 ```
 
-## run php-cs-fixer on save
+Without this line VS Code asks which formatter to use every time Format Document
+is pressed, whenever more than one extension registers for PHP.
+
+**Coming from `junstyle.php-cs-fixer`?** That extension is now redundant and can
+be uninstalled — this one will tell you so on startup. Point
+`editor.defaultFormatter` at `cresenity.php-cf` instead of
+`junstyle.php-cs-fixer`, then delete your `php-cs-fixer.*` settings; the ones
+that matter have equivalents below. Two do not carry over: `autoFixByBracket`
+and `autoFixBySemicolon` (formatting as you type `}` or `;`) are not
+implemented here. `allowRisky` is not a setting either — CF's own
+`.php-cs-fixer.dist.php` already declares `setRiskyAllowed(true)`.
+
+### Settings
+
 ```json
-"phpcf.phpcsfixer" : {
-    "runOnSave" : true
+"phpcf.phpcsfixer": {
+    "enabled": true,
+    "runOnSave": true,
+    "documentFormattingProvider": true,
+    "config": "auto",
+    "exclude": []
 }
 ```
+
+- `runOnSave` — format every PHP file when it is saved.
+- `documentFormattingProvider` — register as a PHP formatter. Turn this off to
+  keep Format Document away from php-cs-fixer while still using `runOnSave`.
+  Only read at startup, so reload the window after changing it.
+- `config` — `"auto"` uses the application's own `.php-cs-fixer.dist.php` when it
+  exists, otherwise CF's. Any other value is a file name looked up in the
+  application then the docroot, or an absolute path.
+- `exclude` — glob patterns that are never formatted, matched against the whole
+  file path (e.g. `"**/vendor/**"`).
+
+## phpcs
+
+Diagnostics come from PHP_CodeSniffer. The extension offers to run
+`phpcf phpcs:install` on activation when the phar is missing — it asks first,
+unlike php-cs-fixer, since diagnostics should not download anything unannounced.
+This replaces the `ikappas.phpcs` extension, which can be uninstalled.
+
+```json
+"phpcf.phpcs": {
+    "enabled": true,
+    "showSources": true,
+    "config": "auto",
+    "ignorePatterns": [
+        "**/.vscode/**",
+        "**/node_modules/**",
+        "**/vendor/**"
+    ]
+}
+```
+
+- `showSources` — name the sniff behind each message, e.g.
+  `PEAR.NamingConventions.ValidClassName.StartWithCapital`.
+- `config` — `"auto"` uses the application's own `phpcs.xml` when it exists,
+  otherwise CF's, following the same rule as `phpcsfixer.config`.
+- `ignorePatterns` — files that are never checked.
 
 # Change Log
 
