@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.527
+
+- **DevTrack update no longer reloads the window.** An update restarts only the extension host ("Restart Extensions"), so editors, layout and terminals survive; a first install activates on its own and now asks for nothing at all.
+- **`phpcf.devtrackBaseUrl` defaults to `https://devcloud.cresenity.com`.** The old default, `cpanel.ittron.co.id`, answers `/devtrack/extension/version` with a 301 to that same host — and the fetch never followed redirects, so the check died on a JSON parse error that pointed nowhere near the cause.
+- DevTrack version checks and `.vsix` downloads follow redirects (up to 5 hops, http and https), report the first 80 characters of a non-JSON response instead of "Unexpected token <", surface request timeouts as timeouts, and delete a half-written `.vsix` rather than leaving one to install as a corrupt extension.
+
 ## 1.3.526
 
 - Republish of 1.3.525. That version was uploaded during a Marketplace outage on 2026-08-17: the upload landed (later publishes rejected it as "already exists") but it never passed validation, so the Marketplace kept serving 1.3.518 and nobody could install it. No code differs between the two — see 1.3.525 below for what actually changed.
