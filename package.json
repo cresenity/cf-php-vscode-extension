@@ -2,7 +2,7 @@
     "name": "php-cf",
     "displayName": "CF PHP Extension",
     "description": "Tools for developing PHP Cresenity Framework on VSCode",
-    "version": "1.3.527",
+    "version": "1.3.528",
     "publisher": "cresenity",
     "license": "MIT",
     "repository": {
@@ -81,11 +81,11 @@
             },
             {
                 "command": "phpcf.installDevtrack",
-                "title": "CF: Install DevTrack Extension"
+                "title": "CF: Install Devcloud Extension"
             },
             {
                 "command": "phpcf.checkDevtrackUpdate",
-                "title": "CF: Check for DevTrack Update"
+                "title": "CF: Check for Devcloud Update"
             },
             {
                 "command": "sftp.config",
@@ -867,7 +867,7 @@
                     "phpcf.devtrackBaseUrl": {
                         "type": "string",
                         "default": "https://devcloud.cresenity.com",
-                        "description": "DevCloud site used to check for and install the DevTrack extension (not published to the Marketplace)"
+                        "description": "DevCloud site used to check for and install the Devcloud extension (formerly DevTrack, not published to the Marketplace)"
                     },
                     "phpcf.blade": {
                         "type": "object",

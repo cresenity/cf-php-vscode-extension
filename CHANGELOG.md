@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.528
+
+- Installer now targets `cresenity.devcloud` (DevTrack was renamed Devcloud) and auto-uninstalls a leftover `cresenity.devtrack` after installing it.
+
 ## 1.3.527
 
 - **DevTrack update no longer reloads the window.** An update restarts only the extension host ("Restart Extensions"), so editors, layout and terminals survive; a first install activates on its own and now asks for nothing at all.

@@ -7,7 +7,9 @@ import * as path from 'path';
 import { URL } from 'url';
 import logger from '../logger';
 
-const DEVTRACK_EXTENSION_ID = 'cresenity.devtrack';
+/** Superseded 2026-08-30 by `cresenity.devcloud` - kept only so a leftover install can be found and removed. */
+const LEGACY_DEVTRACK_EXTENSION_ID = 'cresenity.devtrack';
+const DEVCLOUD_EXTENSION_ID = 'cresenity.devcloud';
 
 interface VersionResponse {
     errCode: number;
@@ -103,11 +105,39 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
 }
 
 export function isDevtrackInstalled(): boolean {
-    return vscode.extensions.getExtension(DEVTRACK_EXTENSION_ID) !== undefined;
+    return vscode.extensions.getExtension(DEVCLOUD_EXTENSION_ID) !== undefined;
+}
+
+function isLegacyDevtrackInstalled(): boolean {
+    return vscode.extensions.getExtension(LEGACY_DEVTRACK_EXTENSION_ID) !== undefined;
 }
 
 /**
- * Downloads the latest DevTrack .vsix from devcloud (not published to the
+ * Removes the pre-2026-08-30 `cresenity.devtrack` install, if any, now that
+ * `cresenity.devcloud` is installed. VS Code treats a changed extension id as
+ * a completely different extension - it will never replace the old one on
+ * its own, so this is the only automatic path off of it (the other install
+ * path, the new extension's own self-update, cannot uninstall itself
+ * cleanly - see that repo's CLAUDE.md). Never fails the calling install.
+ */
+async function uninstallLegacyDevtrackIfPresent(): Promise<void> {
+    if (!isLegacyDevtrackInstalled()) {
+        return;
+    }
+
+    try {
+        await vscode.commands.executeCommand('workbench.extensions.uninstallExtension', LEGACY_DEVTRACK_EXTENSION_ID);
+        logger.info(`Uninstalled legacy extension ${LEGACY_DEVTRACK_EXTENSION_ID}`);
+    } catch (error) {
+        // Non-fatal: the new extension is already installed and working:
+        // failing to clean up the old one is a cosmetic duplicate, not a
+        // broken install.
+        logger.error(error instanceof Error ? error : String(error));
+    }
+}
+
+/**
+ * Downloads the latest Devcloud .vsix from devcloud (not published to the
  * Marketplace, so this is the only way to get it) and installs it via the
  * same command VS Code uses for Marketplace installs.
  */
@@ -119,15 +149,15 @@ export async function installDevtrack(): Promise<void> {
 
         if (version.errCode !== 0 || !version.downloadUrl) {
             vscode.window.showErrorMessage(
-                `Could not fetch DevTrack: ${version.errMessage || 'no build published yet'}`
+                `Could not fetch Devcloud extension: ${version.errMessage || 'no build published yet'}`
             );
             return;
         }
 
         await vscode.window.withProgress(
-            { location: vscode.ProgressLocation.Notification, title: 'Installing DevTrack extension...' },
+            { location: vscode.ProgressLocation.Notification, title: 'Installing Devcloud extension...' },
             async () => {
-                const vsixPath = path.join(os.tmpdir(), `devtrack-${version.version}.vsix`);
+                const vsixPath = path.join(os.tmpdir(), `devcloud-${version.version}.vsix`);
 
                 await downloadFile(version.downloadUrl as string, vsixPath);
 
@@ -142,10 +172,12 @@ export async function installDevtrack(): Promise<void> {
             }
         );
 
+        await uninstallLegacyDevtrackIfPresent();
+
         // A first install activates on its own - nothing of it is loaded yet,
         // so there is nothing to restart.
         if (!wasInstalled) {
-            vscode.window.showInformationMessage(`DevTrack v${version.version} installed and ready.`);
+            vscode.window.showInformationMessage(`Devcloud extension v${version.version} installed and ready.`);
             return;
         }
 
@@ -153,7 +185,7 @@ export async function installDevtrack(): Promise<void> {
         // extension host has to restart - not the whole window. Editors,
         // layout and terminals survive that.
         const restart = await vscode.window.showInformationMessage(
-            `DevTrack updated to v${version.version}. Restart extensions to finish?`,
+            `Devcloud extension updated to v${version.version}. Restart extensions to finish?`,
             'Restart Extensions'
         );
 
@@ -163,30 +195,30 @@ export async function installDevtrack(): Promise<void> {
     } catch (error) {
         logger.error(error instanceof Error ? error : String(error));
         vscode.window.showErrorMessage(
-            'Failed to install DevTrack extension. See the CF PHP output channel for details.'
+            'Failed to install the Devcloud extension. See the CF PHP output channel for details.'
         );
     }
 }
 
-/** Shown once on activation if DevTrack isn't installed yet - not an error, just a nudge. */
+/** Shown once on activation if Devcloud isn't installed yet - not an error, just a nudge. */
 export async function checkDevtrackInstalled(): Promise<void> {
     if (isDevtrackInstalled()) {
         return;
     }
 
     const choice = await vscode.window.showInformationMessage(
-        'DevTrack (Cresenity time tracking) is not installed. Install it now?',
-        'Install DevTrack',
+        'Devcloud (Cresenity time tracking) is not installed. Install it now?',
+        'Install Devcloud',
         'Not Now'
     );
 
-    if (choice === 'Install DevTrack') {
+    if (choice === 'Install Devcloud') {
         await installDevtrack();
     }
 }
 
 function getInstalledDevtrackVersion(): string | undefined {
-    return vscode.extensions.getExtension(DEVTRACK_EXTENSION_ID)?.packageJSON.version;
+    return vscode.extensions.getExtension(DEVCLOUD_EXTENSION_ID)?.packageJSON.version;
 }
 
 /**
@@ -210,18 +242,18 @@ function isNewerVersion(latest: string, current: string): boolean {
 }
 
 /**
- * User-triggered check: installs DevTrack if missing, otherwise compares the
+ * User-triggered check: installs Devcloud if missing, otherwise compares the
  * installed version against devcloud's published one and offers to update.
  */
 export async function checkDevtrackUpdate(): Promise<void> {
     if (!isDevtrackInstalled()) {
         const choice = await vscode.window.showInformationMessage(
-            'DevTrack (Cresenity time tracking) is not installed. Install it now?',
-            'Install DevTrack',
+            'Devcloud (Cresenity time tracking) is not installed. Install it now?',
+            'Install Devcloud',
             'Not Now'
         );
 
-        if (choice === 'Install DevTrack') {
+        if (choice === 'Install Devcloud') {
             await installDevtrack();
         }
 
@@ -236,20 +268,20 @@ export async function checkDevtrackUpdate(): Promise<void> {
 
         if (version.errCode !== 0 || !version.version) {
             vscode.window.showErrorMessage(
-                `Could not check DevTrack version: ${version.errMessage || 'no build published yet'}`
+                `Could not check Devcloud extension version: ${version.errMessage || 'no build published yet'}`
             );
             return;
         }
 
         if (!installedVersion || !isNewerVersion(version.version, installedVersion)) {
             vscode.window.showInformationMessage(
-                `DevTrack is up to date (v${installedVersion || '?'}).`
+                `Devcloud extension is up to date (v${installedVersion || '?'}).`
             );
             return;
         }
 
         const choice = await vscode.window.showInformationMessage(
-            `DevTrack update available: v${installedVersion} → v${version.version}. Update now?`,
+            `Devcloud extension update available: v${installedVersion} → v${version.version}. Update now?`,
             'Update Now',
             'Not Now'
         );
@@ -260,7 +292,7 @@ export async function checkDevtrackUpdate(): Promise<void> {
     } catch (error) {
         logger.error(error instanceof Error ? error : String(error));
         vscode.window.showErrorMessage(
-            'Failed to check DevTrack version. See the CF PHP output channel for details.'
+            'Failed to check the Devcloud extension version. See the CF PHP output channel for details.'
         );
     }
 }
