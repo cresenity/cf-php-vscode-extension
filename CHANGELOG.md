@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.529
+
+- Finished the DevTrack→Devcloud rename in this extension's own naming: commands `phpcf.installDevtrack`/`phpcf.checkDevtrackUpdate` are now `phpcf.installDevcloud`/`phpcf.checkDevcloudUpdate`, and the `phpcf.devtrackBaseUrl` setting is now `phpcf.devcloudBaseUrl` (still reads an existing custom value from the old key if you had one set). The devcloud server's update-check endpoint moved from `devtrack/extension/*` to `devcloud/extension/*`; the old URL keeps working so already-installed copies of this extension aren't left checking a dead link.
+
 ## 1.3.528
 
 - Installer now targets `cresenity.devcloud` (DevTrack was renamed Devcloud) and auto-uninstalls a leftover `cresenity.devtrack` after installing it.

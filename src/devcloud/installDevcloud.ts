@@ -18,8 +18,19 @@ interface VersionResponse {
     downloadUrl?: string;
 }
 
-function getDevtrackBaseUrl(): string {
-    return vscode.workspace.getConfiguration('phpcf').get('devtrackBaseUrl', 'https://devcloud.cresenity.com');
+/**
+ * `phpcf.devtrackBaseUrl` was renamed to `phpcf.devcloudBaseUrl` - removed
+ * from package.json's schema, but VS Code still returns whatever a user
+ * already had in their own settings.json for an undeclared key. Falls back
+ * to it only when the new key was never explicitly set, so anyone who
+ * pointed this at something other than the default (e.g. a dev instance)
+ * doesn't silently lose that on update.
+ */
+function getDevcloudBaseUrl(): string {
+    const config = vscode.workspace.getConfiguration('phpcf');
+    const legacyBaseUrl = config.get<string>('devtrackBaseUrl');
+
+    return config.get('devcloudBaseUrl', legacyBaseUrl || 'https://devcloud.cresenity.com');
 }
 
 const MAX_REDIRECTS = 5;
@@ -104,7 +115,7 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
     }
 }
 
-export function isDevtrackInstalled(): boolean {
+export function isDevcloudInstalled(): boolean {
     return vscode.extensions.getExtension(DEVCLOUD_EXTENSION_ID) !== undefined;
 }
 
@@ -141,11 +152,11 @@ async function uninstallLegacyDevtrackIfPresent(): Promise<void> {
  * Marketplace, so this is the only way to get it) and installs it via the
  * same command VS Code uses for Marketplace installs.
  */
-export async function installDevtrack(): Promise<void> {
+export async function installDevcloud(): Promise<void> {
     try {
-        const wasInstalled = isDevtrackInstalled();
-        const baseUrl = getDevtrackBaseUrl();
-        const version = await fetchJson<VersionResponse>(`${baseUrl}/devtrack/extension/version`);
+        const wasInstalled = isDevcloudInstalled();
+        const baseUrl = getDevcloudBaseUrl();
+        const version = await fetchJson<VersionResponse>(`${baseUrl}/devcloud/extension/version`);
 
         if (version.errCode !== 0 || !version.downloadUrl) {
             vscode.window.showErrorMessage(
@@ -201,8 +212,8 @@ export async function installDevtrack(): Promise<void> {
 }
 
 /** Shown once on activation if Devcloud isn't installed yet - not an error, just a nudge. */
-export async function checkDevtrackInstalled(): Promise<void> {
-    if (isDevtrackInstalled()) {
+export async function checkDevcloudInstalled(): Promise<void> {
+    if (isDevcloudInstalled()) {
         return;
     }
 
@@ -213,11 +224,11 @@ export async function checkDevtrackInstalled(): Promise<void> {
     );
 
     if (choice === 'Install Devcloud') {
-        await installDevtrack();
+        await installDevcloud();
     }
 }
 
-function getInstalledDevtrackVersion(): string | undefined {
+function getInstalledDevcloudVersion(): string | undefined {
     return vscode.extensions.getExtension(DEVCLOUD_EXTENSION_ID)?.packageJSON.version;
 }
 
@@ -245,8 +256,8 @@ function isNewerVersion(latest: string, current: string): boolean {
  * User-triggered check: installs Devcloud if missing, otherwise compares the
  * installed version against devcloud's published one and offers to update.
  */
-export async function checkDevtrackUpdate(): Promise<void> {
-    if (!isDevtrackInstalled()) {
+export async function checkDevcloudUpdate(): Promise<void> {
+    if (!isDevcloudInstalled()) {
         const choice = await vscode.window.showInformationMessage(
             'Devcloud (Cresenity time tracking) is not installed. Install it now?',
             'Install Devcloud',
@@ -254,17 +265,17 @@ export async function checkDevtrackUpdate(): Promise<void> {
         );
 
         if (choice === 'Install Devcloud') {
-            await installDevtrack();
+            await installDevcloud();
         }
 
         return;
     }
 
-    const installedVersion = getInstalledDevtrackVersion();
+    const installedVersion = getInstalledDevcloudVersion();
 
     try {
-        const baseUrl = getDevtrackBaseUrl();
-        const version = await fetchJson<VersionResponse>(`${baseUrl}/devtrack/extension/version`);
+        const baseUrl = getDevcloudBaseUrl();
+        const version = await fetchJson<VersionResponse>(`${baseUrl}/devcloud/extension/version`);
 
         if (version.errCode !== 0 || !version.version) {
             vscode.window.showErrorMessage(
@@ -287,7 +298,7 @@ export async function checkDevtrackUpdate(): Promise<void> {
         );
 
         if (choice === 'Update Now') {
-            await installDevtrack();
+            await installDevcloud();
         }
     } catch (error) {
         logger.error(error instanceof Error ? error : String(error));
